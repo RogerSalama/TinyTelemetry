@@ -44,9 +44,9 @@ logs/              → Folder where CSV log files and test outputs are stored
   - Saves structured CSV output and prints test summary
 
 - **Automated test scripts:**
-  - `baseline.sh` → normal condition
+  - `run_baseline.sh` → normal condition
   - `delay.sh` → adds 100 ms delay and ±10 ms jitter
-  - `loss.sh` → simulates 5% random packet loss
+  - `run_loss.sh` → simulates 5% random packet loss
 
 ---
 
@@ -70,9 +70,10 @@ logs/              → Folder where CSV log files and test outputs are stored
 
 ## How to Run Tests
 
+## Linux/macOS
 ### 1. Baseline Test (no delay/loss)
 ```bash
-sudo ./baseline
+sudo ./baseline.sh
 ```
 Runs the system under normal network conditions.  
 Results saved in `logs/baseline.csv`.
@@ -86,11 +87,18 @@ Results saved in `logs/delay_100ms.csv`.
 
 ### 3. Packet Loss Test
 ```bash
-sudo ./loss.sh
+sudo ./run_loss.sh
 ```
 Simulates 5% packet loss.  
 Results saved in `logs/loss_5percent.csv`.
 
+
+## Windows (Using Git Bash)
+### 1. Baseline Test (no delay/loss)
+# Run Git Bash as Administrator, then:
+```bash
+./baseline.sh
+```
 ---
 
 ## Output Files
