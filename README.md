@@ -122,6 +122,14 @@ sudo ./loss.sh
 Simulates 5% packet loss.  
 Results saved in `logs/loss_5percent.csv`.
 
+
+## Windows (Using Git Bash)
+### 1. Baseline Test (no delay/loss)
+# Run Git Bash as Administrator, then:
+```bash
+./baseline.sh
+```
+
 ---
 
 ## Output Files
