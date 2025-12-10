@@ -6,142 +6,141 @@ import sys
 from protocol import MAX_BYTES, build_header, MSG_INIT, MSG_DATA, HEART_BEAT
 
 # --- CLIENT CONFIGURATION ---
-MY_DEVICE_ID = 1  # The ID this client uses when sending packets
-# --- END CONFIGURATION ---
-
-# Configurable defaults
 DEFAULT_INTERVAL_DURATION = 60
 DEFAULT_INTERVALS = [1, 5, 30]
-
-# Parse command-line arguments
-if len(sys.argv) > 1:
-    try:
-        Interval_Duration = int(sys.argv[1])
-    except ValueError:
-        Interval_Duration = DEFAULT_INTERVAL_DURATION
-else:
-    Interval_Duration = DEFAULT_INTERVAL_DURATION
-
-if len(sys.argv) > 2:
-    try:
-        intervals = [int(x) for x in sys.argv[2].split(",")]
-    except ValueError:
-        intervals = DEFAULT_INTERVALS
-else:
-    intervals = DEFAULT_INTERVALS
-
+MAX_BATCH = 10  # max readings per DATA packet
 SERVER_ADDR = ('localhost', 12000)
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-seq_num = 1
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 running = True
 
-# HISTORY STORAGE (Key is now (device_id, seq_num) tuple)
-sent_history = {} 
+# --- HISTORY STORAGE ---
+sent_history = {}  # key = (device_id, seq_num)
 
-# Send INIT message once
-header = build_header(device_id=MY_DEVICE_ID, batch_count=0, seq_num=seq_num, msg_type=MSG_INIT)
-client_socket.sendto(header, SERVER_ADDR)
-sent_history[(MY_DEVICE_ID, seq_num)] = header # Store with device ID
-print(f"Sent INIT (Device={MY_DEVICE_ID}, seq={seq_num})")
-seq_num += 1
+# --- DEVICE SEQUENCE TRACKING ---
+device_seq = {}  # device_id -> next seq_num
 
+# --- Load sensor file ---
+if not os.path.exists("sensor_values.txt"):
+    print("sensor_values.txt not found. Please create it like: device_id,sensor_type,value1,value2,...")
+    sys.exit(1)
+
+with open("sensor_values.txt") as f:
+    lines = [line.strip() for line in f if line.strip()]
+
+# Build active devices and initial sequence numbers
+active_devices = set()
+device_data = {}  # device_id -> list of (sensor_type, readings)
+for line in lines:
+    parts = [v.strip() for v in line.split(",") if v.strip()]
+    if len(parts) < 3:
+        continue
+    device_id = int(parts[0])
+    sensor_type = parts[1]
+    readings = parts[2:]
+    active_devices.add(device_id)
+    device_seq.setdefault(device_id, 1)
+    device_data.setdefault(device_id, []).append((sensor_type, readings))
+
+print(f"Active devices: {active_devices}")
+
+# --- Send INIT for each device/sensor ---
+for device_id, sensors in device_data.items():
+    for sensor_type, _ in sensors:
+        seq = device_seq[device_id]
+        init_header = build_header(device_id=device_id, batch_count=0, seq_num=seq, msg_type=MSG_INIT)
+        payload = sensor_type.encode("utf-8")
+        packet = init_header + payload
+        client_socket.sendto(packet, SERVER_ADDR)
+        sent_history[(device_id, seq)] = packet
+        print(f"Sent INIT (Device={device_id}, Sensor={sensor_type}, seq={seq})")
+        device_seq[device_id] += 1
+
+# --- Heartbeat thread ---
 def send_heartbeat():
-    """Send heartbeat messages every 10 seconds."""
-    global seq_num, running
+    global running
     while running:
         time.sleep(10)
-        header = build_header(device_id=MY_DEVICE_ID, batch_count=0, seq_num=seq_num, msg_type=HEART_BEAT)
-        client_socket.sendto(header, SERVER_ADDR)
-        sent_history[(MY_DEVICE_ID, seq_num)] = header # Store with device ID
-        print(f"Sent HEARTBEAT (Device={MY_DEVICE_ID}, seq={seq_num})")
-        seq_num += 1
+        for device_id in active_devices:
+            seq = device_seq[device_id]
+            header = build_header(device_id=device_id, batch_count=0, seq_num=seq, msg_type=HEART_BEAT)
+            client_socket.sendto(header, SERVER_ADDR)
+            sent_history[(device_id, seq)] = header
+            print(f"Sent HEARTBEAT (Device={device_id}, seq={seq})")
+            device_seq[device_id] += 1
 
+# --- NACK receiver thread ---
 def receive_nacks():
-    """Thread to listen for NACK messages from server."""
     global running
-    client_socket.settimeout(1.0) # non-blocking with timeout
+    client_socket.settimeout(1.0)
     while running:
         try:
             data, addr = client_socket.recvfrom(1024)
             msg = data.decode('utf-8')
-            
-            # Expected format: "NACK:<device_id>:<seq1>,<seq2>,..."
             if msg.startswith("NACK:"):
                 parts = msg.split(":")
-                if len(parts) == 3:
-                    try:
-                        nack_device_id = int(parts[1])
-                        missing_str = parts[2]
-                        missing_seqs = [int(s) for s in missing_str.split(",") if s.strip()]
-                    except ValueError:
-                        print(f" [x] Failed to parse NACK message: {msg}")
-                        continue
-                else:
-                    print(f" [x] Received malformed NACK message: {msg}")
+                if len(parts) != 3:
                     continue
-
-                if nack_device_id != MY_DEVICE_ID:
-                    print(f" [x] Received NACK for device ID {nack_device_id}, ignoring (My ID is {MY_DEVICE_ID}).")
+                nack_device_id = int(parts[1])
+                missing_seqs = [int(s) for s in parts[2].split(",") if s.strip()]
+                if nack_device_id not in active_devices:
                     continue
-                
-                print(f"\n [!] Received NACK for Device {nack_device_id}, seqs: {missing_seqs}")
-                
+                print(f"\n[!] Received NACK for Device {nack_device_id}, seqs: {missing_seqs}")
                 for miss_seq in missing_seqs:
-                    history_key = (nack_device_id, miss_seq)
-                    if history_key in sent_history:
-                        packet = sent_history[history_key]
-                        client_socket.sendto(packet, SERVER_ADDR)
-                        print(f" [>>] Retransmitting seq={miss_seq}")
+                    key = (nack_device_id, miss_seq)
+                    if key in sent_history:
+                        client_socket.sendto(sent_history[key], SERVER_ADDR)
+                        print(f"[>>] Retransmitting seq={miss_seq}")
                     else:
-                        print(f" [x] Cannot retransmit seq={miss_seq} (not in history)")
-                        
+                        print(f"[x] Cannot retransmit seq={miss_seq} (not in history)")
         except socket.timeout:
             continue
         except Exception as e:
             if running:
-                print(f"Error in receiver thread: {e}")
+                print(f"Error in NACK thread: {e}")
 
-# Start background threads
+# Start threads
 threading.Thread(target=send_heartbeat, daemon=True).start()
 threading.Thread(target=receive_nacks, daemon=True).start()
 
-# Load sensor data
-if not os.path.exists("sensor_values.txt"):
-    print("sensor_values.txt not found. Please create it with comma-separated values.")
-    running = False
+# --- Parse command-line arguments ---
+if len(sys.argv) > 1:
+    try:
+        interval_duration = int(sys.argv[1])
+    except:
+        interval_duration = DEFAULT_INTERVAL_DURATION
 else:
-    with open("sensor_values.txt") as f:
-        lines = [line.strip() for line in f if line.strip()]
+    interval_duration = DEFAULT_INTERVAL_DURATION
 
-    if not lines:
-        print("sensor_values.txt is empty.")
-        running = False
-    else:
-        print(f"Starting test for intervals {intervals} ({Interval_Duration}s each)...")
+if len(sys.argv) > 2:
+    try:
+        intervals = [int(x) for x in sys.argv[2].split(",")]
+    except:
+        intervals = DEFAULT_INTERVALS
+else:
+    intervals = DEFAULT_INTERVALS
 
-        for interval in intervals:
-            print(f"\n--- Running {interval}s interval for {Interval_Duration} seconds ---")
-            start_interval = time.time()
-            while time.time() - start_interval < Interval_Duration:
-                line = lines[(seq_num - 1) % len(lines)]
-                values = [v.strip() for v in line.split(",") if v.strip()]
-                batch_count = len(values)
-                payload = ",".join(values).encode("utf-8")
+# --- Send DATA packets ---
+try:
+    for interval in intervals:
+        print(f"\n--- Running interval {interval}s for {interval_duration}s ---")
+        start_time = time.time()
+        while time.time() - start_time < interval_duration:
+            for device_id, sensors in device_data.items():
+                for sensor_type, readings in sensors:
+                    batch = readings[:MAX_BATCH]
+                    payload = ",".join(batch).encode("utf-8")
+                    seq = device_seq[device_id]
+                    header = build_header(device_id=device_id, batch_count=len(batch), seq_num=seq, msg_type=MSG_DATA)
+                    packet = header + payload
+                    client_socket.sendto(packet, SERVER_ADDR)
+                    sent_history[(device_id, seq)] = packet
+                    print(f"Sent DATA seq={seq}, Device={device_id}, Sensor={sensor_type}, readings={batch}")
+                    device_seq[device_id] += 1
+            time.sleep(interval)
+except KeyboardInterrupt:
+    print("Client interrupted.")
 
-                header = build_header(device_id=MY_DEVICE_ID, batch_count=batch_count,
-                                      seq_num=seq_num, msg_type=MSG_DATA)
-                packet = header + payload
-
-                # STORE IN HISTORY using (device_id, seq_num) key
-                sent_history[(MY_DEVICE_ID, seq_num)] = packet
-                
-                client_socket.sendto(packet, SERVER_ADDR)
-                print(f"Sent DATA seq={seq_num}, interval={interval}s, readings={values}")
-                seq_num += 1
-                time.sleep(interval)
-
-print("Test finished. Closing client...")
 running = False
 client_socket.close()
 print("Client finished.")
