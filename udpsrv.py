@@ -127,6 +127,10 @@ trackers = {}
 received_count = 0
 duplicate_count = 0
 
+# --- NEW: Reorder buffer setup ---
+reorder_buffer = []
+BUFFER_FLUSH_THRESHOLD = 10
+
 try:
     while True:
         data, addr = server_socket.recvfrom(MAX_BYTES)
@@ -144,6 +148,9 @@ try:
         
         device_id = header['device_id']
         seq = header['seq']
+
+        # --- NEW: Combine full timestamp in ms ---
+        device_timestamp_ms = header['timestamp'] * 1000 + header['milliseconds']
         
         if device_id not in trackers:
             trackers[device_id] = DeviceTracker()
@@ -159,15 +166,11 @@ try:
         diff = seq - tracker.highest_seq
 
         if diff == 1:
-            # CASE 1: In-order packet
             tracker.highest_seq = seq
-            # print(f" -> Packet {seq} received in order.")
 
         elif diff > 1:
-            # CASE 2: Gap Detected
             gap_flag = 1
             
-            # Identify missing packets
             missing_list = []
             for missing_seq in range(tracker.highest_seq + 1, seq):
                 tracker.missing_set.add(missing_seq)
@@ -175,7 +178,6 @@ try:
             
             print(f" [!] Gap Detected! Missing packets: {missing_list}")
             
-            # --- SEND NACK TO CLIENT ---
             if missing_list:
                 nack_msg = f"NACK:{device_id}:" + ",".join(missing_list)                
                 server_socket.sendto(nack_msg.encode('utf-8'), addr)
@@ -184,24 +186,20 @@ try:
             tracker.highest_seq = seq
 
         elif diff <= 0:
-            # CASE 3: Out-of-Order or Duplicate
             if seq in tracker.missing_set:
-                # Subcase 3a: Recovered Packet (Was missing)
                 tracker.missing_set.remove(seq)
                 print(f" [+] Recovered packet {seq} (was missing).")
             else:
-                # Subcase 3b: True Duplicate -> IGNORE LOGIC
                 duplicate_flag = 1
                 duplicate_count += 1
-                received_count-=1
+                received_count -= 1
 
                 print(f" [D] Duplicate detected: {seq}. Content ignored.")
-                # [cite_start]We still log it to CSV to verify duplication behavior [cite: 46]
-                # But you can choose to discard the payload variable if you want "total ignore"
 
         # --- LOGIC END ---
 
-        delay = round(time.time() - header['timestamp'], 3)
+        # --- NEW: Accurate delay calculation ---
+        delay = round(time.time() * 1000 - device_timestamp_ms, 3) / 1000
         received_count += 1
         
         end_cpu = time.process_time()
@@ -212,7 +210,7 @@ try:
             'device_id': header['device_id'],
             'batch_count': header['batch_count'],
             'seq': header['seq'],
-            'timestamp': f" {time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(header['timestamp']))}.{header['milliseconds']:03d}",
+            'timestamp': f"{device_timestamp_ms}",
             'msg_type': header['msg_type'],
             'payload': payload,
             'client_address': f"{addr[0]}:{addr[1]}",
@@ -223,13 +221,19 @@ try:
             'cpu_time_ms': cpu_time_ms
         }
 
-        # Save to CSV (even duplicates, so we can prove they were detected)
+        # --- NEW: Buffer and flush sorted packets ---
         if header['msg_type'] == MSG_DATA:
-            if duplicate_flag:
-                save_to_csv(csv_data,True)
-            else:
-                save_to_csv(csv_data)
-                
+            reorder_buffer.append({
+                "device_timestamp_ms": device_timestamp_ms,
+                "csv_data": csv_data
+            })
+
+            if len(reorder_buffer) >= BUFFER_FLUSH_THRESHOLD:
+                reorder_buffer.sort(key=lambda p: p["device_timestamp_ms"])
+                for pkt in reorder_buffer:
+                    save_to_csv(pkt["csv_data"])
+                reorder_buffer.clear()
+            
             if gap_flag:
                 print(f" -> DATA received (seq={seq}) with GAP.")
             elif duplicate_flag:
@@ -239,7 +243,6 @@ try:
                 
         elif header['msg_type'] == MSG_INIT:
             print(f" -> INIT message from Device {device_id}")
-            # Reset tracker
             trackers[device_id].highest_seq = seq
             trackers[device_id].missing_set.clear()
             
@@ -250,16 +253,3 @@ try:
 
 except KeyboardInterrupt:
     print("\nServer interrupted. Generating summary...")
-    total_expected = 0
-    if tracker:
-        for device in tracker:
-            total_expected+=device.highest_seq
-
-    missing_count = total_expected - received_count
-    delivery_rate = (received_count / total_expected) * 100 if total_expected else 0
-
-    print("\n=== Baseline Test Summary ===")
-    print(f"Total received: {received_count}")
-    print(f"Missing packets: {missing_count}")
-    print(f"Duplicate packets: {duplicate_count}")
-    print(f"Delivery rate: {delivery_rate:.2f}%")
