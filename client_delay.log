@@ -1,0 +1,48 @@
+Sent INIT (Device=1, seq=1)
+Starting test for intervals [1, 5, 30] (60s each)...
+
+--- Running 1s interval for 60 seconds ---
+Sent DATA seq=2, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=3, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=4, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=5, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=6, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=7, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=8, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=9, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=10, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=11, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent HEARTBEAT (Device=1, seq=12)
+Sent DATA seq=13, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=14, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=15, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=16, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=17, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=18, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=19, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=20, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=21, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=22, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent HEARTBEAT (Device=1, seq=23)
+Sent DATA seq=24, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=25, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=26, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=27, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=28, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=29, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=30, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=31, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=32, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=33, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent HEARTBEAT (Device=1, seq=34)
+Sent DATA seq=35, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=36, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=37, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Sent DATA seq=38, interval=1s, readings=['24.0', '44.9', '3.9']
+Sent DATA seq=39, interval=1s, readings=['23.8', '45.1', '3.7', '2.8', '9.32']
+Sent DATA seq=40, interval=1s, readings=['24.2', '3.8']
+Sent DATA seq=41, interval=1s, readings=['23.5', '45.2', '3.8', '7.2']
+Traceback (most recent call last):
+  File "/mnt/d/Abdelrahman ENG ASU/Semester 7/Networks/TinyTelemetry/udpclnt.py", line 142, in <module>
+    time.sleep(interval)
+KeyboardInterrupt
