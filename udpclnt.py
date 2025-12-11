@@ -4,7 +4,7 @@ import time
 import os
 import sys
 import struct
-from protocol import MAX_BYTES, build_header, MSG_INIT, MSG_DATA, HEART_BEAT, unit_to_code, parse_header, NACK_MSG, HEADER_SIZE
+from protocol import MAX_BYTES, build_header, MSG_INIT, MSG_DATA, HEART_BEAT, unit_to_code, parse_header, NACK_MSG, HEADER_SIZE, encrypt_bytes
 
 # Configurable defaults
 DEFAULT_INTERVAL_DURATION = 20  # total test duration = 60s * 3 intervals
@@ -207,6 +207,10 @@ else:
 
                         fmt = '!' + ('d' * len(values))
                         enc_payload = struct.pack(fmt, *values)
+
+                        # Encrypt the binary payload (XOR stream) so packed
+                        # doubles remain 8-byte aligned. Uses device_id & seq
+                        enc_payload = encrypt_bytes(enc_payload, sensor['device_id'], sensor['seq_num'])
 
                         packet = header + enc_payload
                         sent_history[(sensor['device_id'], sensor['seq_num'])] = packet

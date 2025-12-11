@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 import struct
 import threading
-from protocol import MAX_BYTES, HEADER_SIZE, parse_header, MSG_INIT, MSG_DATA, HEART_BEAT, code_to_unit, build_header, NACK_MSG
+from protocol import MAX_BYTES, HEADER_SIZE, parse_header, MSG_INIT, MSG_DATA, HEART_BEAT, code_to_unit, build_header, NACK_MSG, decrypt_bytes
 
 # --- Real-time logging ---
 sys.stdout.reconfigure(line_buffering=True)
@@ -247,8 +247,12 @@ try:
             expected_len = num * 8
             if len(payload_bytes) >= expected_len and num > 0:
                 try:
+                    # Decrypt first (XOR stream). This preserves the exact
+                    # binary layout so struct.unpack works as before.
+                    enc = payload_bytes[:expected_len]
+                    dec = decrypt_bytes(enc, header['device_id'], header['seq'])
                     fmt = '!' + ('d' * num)
-                    values = list(struct.unpack(fmt, payload_bytes[:expected_len]))
+                    values = list(struct.unpack(fmt, dec))
                     # Format values to fixed decimal string for CSV/logging
                     payload = ",".join(f"{v:.6f}" for v in values)
                 except Exception as e:
