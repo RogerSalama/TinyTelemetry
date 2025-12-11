@@ -123,10 +123,10 @@ def receive_nacks():
                                 msg_type=MSG_INIT
                             )
                             client_socket.sendto(init_header, SERVER_ADDR)
-                            # Remove state reset that would cause duplicate seq numbers (seq_num=1, current_index=0)
-                            # The client should continue sending data packets starting from its current seq_num
+                            sensor['current_index'] = 0
+                            sensor['seq_num'] = 2
                             print(f" [>>] Sent re-INIT (seq=1, unit={sensor['unit']})")
-                            time.sleep(0.1) 
+                            # time.sleep(0.1) 
                             break 
 
         except socket.timeout:
