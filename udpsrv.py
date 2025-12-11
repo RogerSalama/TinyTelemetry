@@ -27,22 +27,28 @@ CSV_HEADERS = [
     "client_address", "delay_seconds", "duplicate_flag", "gap_flag", 
     "packet_size", "cpu_time_ms"
 ]    
-
 def init_csv_file():
-    """Initialize CSV file with headers if it doesn't exist or is empty."""
-    needs_header = False
-    if not os.path.exists(CSV_FILENAME):
-        needs_header = True
-    elif os.path.getsize(CSV_FILENAME) == 0:
-        needs_header = True
+    """Ensure CSV always has headers at the top, even if file already exists."""
+    rows = []
 
-    if needs_header:
-        with open(CSV_FILENAME, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(CSV_HEADERS)
-        print(f"Created new CSV file with headers: {CSV_FILENAME}")
-    else:
-        print(f"Appending to existing CSV: {CSV_FILENAME}")
+    # If the file exists, read all existing rows
+    if os.path.exists(CSV_FILENAME):
+        with open(CSV_FILENAME, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            rows = list(reader)  # read all rows
+
+    # Always overwrite the file with header + existing rows
+    with open(CSV_FILENAME, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(CSV_HEADERS)  # write header first
+        if rows:
+            # Append the old data, but skip the old header if it exists
+            if rows[0] == CSV_HEADERS:
+                rows = rows[1:]  # remove old header
+            writer.writerows(rows)
+
+    print(f"CSV initialized with headers (file: {CSV_FILENAME})")
+
 
 def save_to_csv(data_dict, is_update=False):
     """
@@ -294,3 +300,5 @@ except KeyboardInterrupt:
     print(f"Duplicate packets: {duplicate_count}")
     print(f"Delivery rate: {delivery_rate:.2f}%")
     
+
+

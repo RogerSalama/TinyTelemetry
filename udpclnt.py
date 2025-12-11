@@ -52,7 +52,7 @@ def send_heartbeat():
         for sensor in sensors:
             header = build_header(device_id=sensor['device_id'], batch_count=0, seq_num=0, msg_type=HEART_BEAT)
             client_socket.sendto(header, SERVER_ADDR)
-            print(f"Sent HEARTBEAT (seq={sensor['seq_num']})")
+            print(f"Sent HEARTBEAT for Device {sensor['device_id']} (seq={sensor['seq_num']})")
             # sensor['seq_num'] += 1
         # header = build_header(device_id=MY_DEVICE_ID, batch_count=0, seq_num=seq_num, msg_type=HEART_BEAT)
         # client_socket.sendto(header, SERVER_ADDR)
@@ -63,11 +63,16 @@ def send_heartbeat():
 def receive_nacks():
     """Thread to listen for NACK messages from server."""
     global running
+    # Optional: set a short timeout so recvfrom can exit periodically
+    try:
+        client_socket.settimeout(1.0)
+    except Exception:
+        pass  # ignore if not supported
     # client_socket.settimeout(1.0) # non-blocking with timeout
     while running:
         try:
             # Data received is a bytes object
-            data, addr = client_socket.recvfrom(1024) 
+            data, addr = client_socket.recvfrom(1200) 
             
             # Parse the header (which requires bytes)
             header = parse_header(data)
@@ -125,9 +130,17 @@ def receive_nacks():
 
         except socket.timeout:
             continue
+        except OSError as e:
+            # Handle Windows-specific socket closure errors (WinError 10022)
+            if not running:
+                break
+            print(f"Receiver thread OSError: {e}")
+            time.sleep(0.1)
+            continue
         except Exception as e:
             if running:
                 print(f"Error in receiver thread: {e}")
+            time.sleep(0.1)
 
 # Start background threads
 # threading.Thread(target=send_heartbeat, daemon=True).start()
