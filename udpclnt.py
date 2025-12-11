@@ -180,8 +180,13 @@ else:
 
         for interval in intervals:
             print(f"\n--- Running {interval}s interval for {Interval_Duration} seconds ---")
+
+            # Reset sensors to start sending readings from the beginning
+            for sensor in sensors:
+                sensor['current_index'] = 0
             start_interval = time.time()
             while time.time() - start_interval < Interval_Duration:
+                loop_start = time.time()
                 for sensor in sensors:
                     start = sensor['current_index']
                     if start < len(sensor['readings']):
@@ -200,7 +205,10 @@ else:
                         sensor['seq_num'] += 1
                         sensor['current_index'] += 10
                         time.sleep(0.1)  # Small delay between packets
-                time.sleep(interval)
+                # Wait until next interval
+                elapsed = time.time() - loop_start
+                if elapsed < interval:
+                    time.sleep(interval - elapsed)
 
 print("Test finished. Closing client...")
 running = False
