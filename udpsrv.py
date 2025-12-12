@@ -2,9 +2,9 @@ import socket
 import time
 import csv
 import os
-import sys
 from datetime import datetime
 from protocol import (
+<<<<<<< HEAD
     MAX_BYTES, HEADER_SIZE, parse_header, MSG_INIT, MSG_DATA, HEART_BEAT,
     validate_packet
 )
@@ -12,6 +12,20 @@ from protocol import (
 sys.stdout.reconfigure(line_buffering=True)
 
 SERVER_PORT = 12000
+=======
+    MAX_BYTES, HEADER_SIZE, parse_header, MSG_INIT, MSG_DATA, HEART_BEAT
+)
+
+SERVER_PORT = 12002
+
+# Line-buffer stdout for immediate logs (safe if available)
+try:
+    import sys
+    sys.stdout.reconfigure(line_buffering=True)
+except Exception:
+    pass
+
+>>>>>>> e8a682a (fixing errors)
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('', SERVER_PORT))
@@ -50,12 +64,49 @@ def save_to_csv_row(row):
                 pass
     except Exception as e:
         print(f"✗ Error writing to CSV: {e}")
+<<<<<<< HEAD
+=======
+
+# ----- packet validation -----
+def validate_packet(data: bytes):
+    if not data:
+        return False, "empty packet"
+    if len(data) > MAX_BYTES:
+        return False, f"packet too large ({len(data)} > {MAX_BYTES})"
+    if len(data) < HEADER_SIZE:
+        # Allow plain-text NACK coming from server? (Server doesn't receive NACKs)
+        return False, f"too small for header ({len(data)} < {HEADER_SIZE})"
+    try:
+        h = parse_header(data)
+    except Exception as e:
+        return False, f"header parse error: {e}"
+
+    msg_type = h.get('msg_type')
+    if msg_type not in (MSG_INIT, MSG_DATA, HEART_BEAT):
+        return False, f"unknown msg_type {msg_type}"
+    ms = h.get('milliseconds', 0)
+    if not (0 <= ms <= 999):
+        return False, f"invalid milliseconds {ms}"
+    return True, ""
+>>>>>>> e8a682a (fixing errors)
 
 class DeviceTracker:
     def __init__(self):
         self.highest_seq = 0
         self.missing_set = set()
 
+<<<<<<< HEAD
+=======
+# Reorder buffer & metrics
+reorder_buffer = []
+MAX_BUFFER_SIZE = 15
+delay_samples = []
+cpu_samples = []
+out_of_order_count = 0
+last_seq_seen = {}
+start_time_server = time.time()
+
+>>>>>>> e8a682a (fixing errors)
 init_csv_file()
 trackers = {}
 received_count = 0
@@ -82,7 +133,12 @@ try:
         msg_type = header['msg_type']
 
         device_timestamp_ms = header['timestamp'] * 1000 + header['milliseconds']
+<<<<<<< HEAD
         device_ts_str = time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(header['timestamp'])) + f".{header['milliseconds']:03d}"
+=======
+        device_ts_str = time.strftime('%d/%m/%Y %H:%M:%S',
+                                      time.localtime(header['timestamp'])) + f".{header['milliseconds']:03d}"
+>>>>>>> e8a682a (fixing errors)
 
         if device_id not in trackers:
             trackers[device_id] = DeviceTracker()
@@ -110,11 +166,24 @@ try:
                 duplicate_flag = 1
                 duplicate_count += 1
 
+<<<<<<< HEAD
         delay = (time.time() * 1000 - device_timestamp_ms) / 1000.0
         received_count += 1
         cpu_time_ms = (time.process_time() - start_cpu) * 1000
 
         msg_str = {MSG_INIT: "INIT", MSG_DATA: "DATA", HEART_BEAT: "HEARTBEAT"}.get(msg_type, f"UNKNOWN({msg_type})")
+=======
+        # --- Delay calculation ---
+        delay = (time.time() * 1000 - device_timestamp_ms) / 1000.0
+
+        # --- Tracking ---
+        received_count += 1
+        cpu_time_ms = (time.process_time() - start_cpu) * 1000
+
+        msg_str = {MSG_INIT: "INIT", MSG_DATA: "DATA", HEART_BEAT: "HEARTBEAT"}.get(
+            msg_type, f"UNKNOWN({msg_type})"
+        )
+>>>>>>> e8a682a (fixing errors)
 
         row = [
             server_receive_time,
@@ -132,8 +201,32 @@ try:
             f"{cpu_time_ms:.4f}"
         ]
 
+<<<<<<< HEAD
         save_to_csv_row(row)
 
+=======
+        # push into reorder buffer
+        reorder_buffer.append((device_timestamp_ms, row))
+
+        # metrics
+        delay_samples.append(delay)
+        cpu_samples.append(cpu_time_ms)
+
+        # Out-of-order detection
+        if device_id in last_seq_seen:
+            if device_timestamp_ms < last_seq_seen[device_id]:
+                out_of_order_count += 1
+        last_seq_seen[device_id] = device_timestamp_ms
+
+        # Flush buffer when full
+        if len(reorder_buffer) >= MAX_BUFFER_SIZE:
+            reorder_buffer.sort(key=lambda x: x[0])
+            for _, sorted_row in reorder_buffer:
+                save_to_csv_row(sorted_row)
+            reorder_buffer = []
+
+        # Console printing
+>>>>>>> e8a682a (fixing errors)
         if msg_type == MSG_DATA:
             if gap_flag:
                 print(f" -> DATA received (device={device_id}, seq={seq}, batch={batch_count}) with GAP.")
@@ -149,6 +242,43 @@ try:
             print(f" -> HEARTBEAT from device={device_id} seq={seq}")
 
 except KeyboardInterrupt:
+<<<<<<< HEAD
     pass  
 finally:
+=======
+    pass
+
+finally:
+    # Flush remaining buffer on exit
+    if reorder_buffer:
+        reorder_buffer.sort(key=lambda x: x[0])
+        for _, sorted_row in reorder_buffer:
+            save_to_csv_row(sorted_row)
+
+    # Build summary lines safely
+    uptime_s = time.time() - start_time_server
+    avg_delay = (sum(delay_samples) / len(delay_samples)) if delay_samples else 0.0
+    avg_cpu = (sum(cpu_samples) / len(cpu_samples)) if cpu_samples else 0.0
+    summary_lines = [
+        f"Server uptime: {uptime_s:.2f} s",
+        f"Packets received: {received_count}",
+        f"Duplicates: {duplicate_count}",
+        f"Out-of-order events: {out_of_order_count}",
+        f"Avg delay: {avg_delay:.3f} s",
+        f"Avg CPU per packet: {avg_cpu:.3f} ms",
+        f"Buffer size threshold: {MAX_BUFFER_SIZE}",
+    ]
+
+    for line in summary_lines:
+        print(line)
+
+    METRICS_PATH = os.path.join(LOG_DIR, "metrics.log")
+    try:
+        with open(METRICS_PATH, "a", encoding="utf-8") as mf:
+            mf.write("\n".join(summary_lines) + "\n")
+        print(f"\nMetrics saved to {METRICS_PATH}")
+    except Exception as e:
+        print(f"✗ Error saving metrics to {METRICS_PATH}: {e}")
+
+>>>>>>> e8a682a (fixing errors)
     server_socket.close()

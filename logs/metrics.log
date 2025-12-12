@@ -1,0 +1,18 @@
+
+=== METRICS SUMMARY ===
+Server runtime (s): 13.859
+Total received packets: 0
+Total duplicate packets: 0
+Total missing packets (sum of missing_sets): 0
+Total out-of-order packets: 0
+Throughput: 0.00 packets/sec
+
+Delay (s):
+  Average: 0.000000
+  Min:     0.000000
+  Max:     0.000000
+
+CPU time per packet (ms):
+  Average: 0.0000
+  Min:     0.0000
+  Max:     0.0000
