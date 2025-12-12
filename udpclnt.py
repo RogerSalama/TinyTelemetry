@@ -91,7 +91,7 @@ def receive_nacks():
             checksum_valid = (received_checksum == calculated_checksum)
 
             if not checksum_valid:
-                print(f"⚠️ Checksum mismatch: received={received_checksum}, calculated={calculated_checksum}")
+                print(f" Checksum mismatch: received={received_checksum}, calculated={calculated_checksum}")
                 continue
                         
             payload_str = payload_bytes.decode('utf-8', errors='ignore').strip()
