@@ -1,53 +1,61 @@
-#!/bin/bash
-# run_baseline.sh
+#!/usr/bin/env bash
+# baseline.sh — Baseline run (no impairment)
 
-# 1. Reset network settings
-sudo tc qdisc del dev lo root 2>/dev/null
+set -euo pipefail
 
-# 2. Start the server in the background
+# 1) Reset any previous netem settings on loopback (ignore errors)
+if command -v sudo >/dev/null 2>&1; then
+  sudo tc qdisc del dev lo root 2>/dev/null || true
+else
+  tc qdisc del dev lo root 2>/dev/null || true
+fi
+
+# 2) Start the server in the background (writes to logs/iot_device_data.csv)
 python3 udpsrv.py > server_baseline.log 2>&1 &
 SERVER_PID=$!
-echo "Server started with PID $SERVER_PID"
+echo "Server started with PID ${SERVER_PID}"
 
-# 3. Wait a moment to ensure the server is ready
+# 3) Small wait to ensure server is listening
 sleep 1
 
-# 4. Run the client
+# 4) Run the client in foreground (uses its defaults)
 python3 udpclnt.py > client_baseline.log 2>&1
 echo "Client finished."
 
-# 5. Give the server time to finish processing
+# 5) Give the server a moment to process + flush buffer
 sleep 1
 
-# 6. Stop the server if it's still running
-if ps -p $SERVER_PID > /dev/null; then
-    kill $SERVER_PID
-    echo "Server stopped."
+# 6) Stop the server with SIGINT (KeyboardInterrupt) for graceful shutdown
+if ps -p "${SERVER_PID}" >/dev/null 2>&1; then
+  kill -INT "${SERVER_PID}" || true
+  # wait briefly for exit
+  sleep 1
+  if ps -p "${SERVER_PID}" >/dev/null 2>&1; then
+    echo "Server still running; sending SIGTERM..."
+    kill "${SERVER_PID}" || true
+  fi
+  echo "Server stopped."
 else
-    echo "Server already exited."
+  echo "Server already exited."
 fi
 
-# 7. Move the CSV file to logs
+# 7) Collect artifacts into logs/
 mkdir -p logs
-if [ -f iot_device_data.csv ]; then
-    mv iot_device_data.csv logs/baseline.csv 2>/dev/null
 
-    # If move failed, try with sudo or fallback
-    if [ ! -f logs/baseline.csv ]; then
-        echo "Permission issue — trying with sudo..."
-        sudo mv iot_device_data.csv logs/baseline.csv 2>/dev/null
-    fi
-
-    # Final fallback if still not moved
-    if [ ! -f logs/baseline.csv ]; then
-        echo "Still can't move file — saving to home folder instead."
-        mv iot_device_data.csv ~/baseline.csv
-        echo "Data saved to ~/baseline.csv"
-    else
-        echo "Data saved to logs/baseline.csv"
-    fi
+# Copy CSV to scenario file
+if [ -f "logs/iot_device_data.csv" ]; then
+  cp "logs/iot_device_data.csv" "logs/baseline.csv"
+  echo "CSV saved to logs/baseline.csv"
 else
-    echo "No CSV file found — server may not have received data."
+  echo "No CSV found at logs/iot_device_data.csv — did the server receive data?"
+fi
+
+# Copy metrics (written on SIGINT shutdown) if present
+if [ -f "logs/metrics.json" ]; then
+  cp "logs/metrics.json" "logs/baseline_metrics.json"
+  echo "Metrics saved to logs/baseline_metrics.json"
+else
+  echo "No metrics.json found — ensure server was stopped via SIGINT."
 fi
 
 echo "Baseline test complete."

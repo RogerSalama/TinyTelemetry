@@ -1,0 +1,3 @@
+UDP Server running on port 12000 (max 200 bytes)
+Appending to existing CSV: logs/iot_device_data.csv
+Collector ready; buffering for timestamp-based reordering (jitter guard = 150 ms).
