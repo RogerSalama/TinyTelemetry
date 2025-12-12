@@ -38,12 +38,12 @@ def init_csv_file():
 
     # If the file exists, read all existing rows
     if os.path.exists(CSV_FILENAME):
-        with open(CSV_FILENAME, 'r', newline='') as csvfile:
+        with open(CSV_FILENAME, 'r', newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
             rows = list(reader)  # read all rows
 
     # Always overwrite the file with header + existing rows
-    with open(CSV_FILENAME, 'w', newline='') as csvfile:
+    with open(CSV_FILENAME, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(CSV_HEADERS)  # write header first
         if rows:
@@ -261,24 +261,23 @@ try:
         calculated_checksum = calculate_expected_checksum(base_header_bytes, payload_bytes)
         # For DATA messages, payload is binary doubles (8 bytes each)
         if header['msg_type'] == MSG_DATA:
-            num = header['batch_count']
-            expected_len = num * 8
-            if len(payload_bytes) >= expected_len and num > 0:
+            num = header['batch_count']  # Total number of batches
+            if len(payload_bytes) > 0 and num > 0:
                 try:
-                    # Decrypt first (XOR stream). This preserves the exact
-                    # binary layout so struct.unpack works as before.
-                    enc = payload_bytes[:expected_len]
-                    dec = decrypt_bytes(enc, header['device_id'], header['seq'])
-                    fmt = '!' + ('d' * num)
-                    values = list(struct.unpack(fmt, dec))
-                    # Format values to fixed decimal string for CSV/logging
+                    # Decrypt the entire payload
+                    dec = decrypt_bytes(payload_bytes, header['device_id'], header['seq'])
+                    
+                    # Parse using smart structure
+                    values = decode_smart_payload(dec, num)
+                    
                     payload = ",".join(f"{v:.6f}" for v in values)
                 except Exception as e:
+                    print(f"Error parsing smart payload: {e}")
+                    # Fallback to text
                     payload = payload_bytes.decode('utf-8', errors='ignore')
             else:
-                # not enough bytes — fallback to text
                 payload = payload_bytes.decode('utf-8', errors='ignore')
-        else:
+        else:  
             # INIT or HEARTBEAT: treat payload as text (usually empty)
             payload = payload_bytes.decode('utf-8', errors='ignore')
         

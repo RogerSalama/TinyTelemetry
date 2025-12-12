@@ -195,3 +195,106 @@ def calculate_expected_checksum(header_data_dict, payload):
     
     # 3. Calculate the 1-byte checksum.
     return ascii_sum_checksum(data_to_checksum)
+
+def encode_smart_payload(values, flag_batches=None):
+    """
+    Encode a payload with smart compression flags.
+    values: list of numbers (int or float) to send
+    flag_batches: list of batch numbers (1-indexed) that should use float (8 bytes) instead of int32 (4 bytes)
+    Returns: bytes object containing the payload
+    """
+    n = len(values)
+    
+    # If no flags provided, send all as int32 (4 bytes)
+    if flag_batches is None:
+        flag_batches = []
+    
+    # Create the flag section
+    flag_byte_count = len(flag_batches)
+    flag_bytes = bytes(flag_batches)  # Each flag is 1 byte (1-10)
+    
+    # Create the data section
+    data_bytes = bytearray()
+    for i, value in enumerate(values, start=1):
+        if i in flag_batches:
+            # Store as float (8 bytes) - Python float is double precision
+            data_bytes.extend(struct.pack('!d', float(value)))
+        else:
+            # Store as int32 (4 bytes)
+            data_bytes.extend(struct.pack('!i', int(value)))
+    
+    # Combine: flag_byte_count (1 byte) + flag_bytes + data_bytes
+    return bytes(flag_byte_count) + flag_bytes + bytes(data_bytes)
+
+def decode_smart_payload(payload_bytes, batch_count):
+    """
+    Decode the smart payload structure.
+    Returns: list of numbers (either int or float)
+    """
+    if len(payload_bytes) == 0:
+        return []
+    
+    # Read flag byte count
+    flag_byte_count = payload_bytes[0]
+    
+    # Read flag bytes (batch numbers that use 8-byte float)
+    if flag_byte_count > 0:
+        flag_bytes = payload_bytes[1:1+flag_byte_count]
+        flag_batches = list(flag_bytes)  # Convert to list of batch numbers
+    else:
+        flag_batches = []
+    
+    # Calculate total data size
+    num_float_batches = len(flag_batches)
+    num_int_batches = batch_count - num_float_batches
+    expected_data_size = num_float_batches * 8 + num_int_batches * 4
+    
+    # Check if we have enough data
+    data_start = 1 + flag_byte_count
+    if len(payload_bytes) < data_start + expected_data_size:
+        raise ValueError(f"Expected {expected_data_size} bytes of data, got {len(payload_bytes) - data_start}")
+    
+    # Read data section
+    data_section = payload_bytes[data_start:data_start+expected_data_size]
+    
+    # Parse the data
+    values = []
+    data_pos = 0
+    
+    for batch_num in range(1, batch_count + 1):
+        if batch_num in flag_batches:
+            # Read 8 bytes for float/double
+            value_bytes = data_section[data_pos:data_pos+8]
+            if len(value_bytes) < 8:
+                break
+            value = struct.unpack('!d', value_bytes)[0]
+            data_pos += 8
+        else:
+            # Read 4 bytes for int32
+            value_bytes = data_section[data_pos:data_pos+4]
+            if len(value_bytes) < 4:
+                break
+            value = struct.unpack('!i', value_bytes)[0]
+            data_pos += 4
+            value /= 10**6
+        values.append(value)
+    
+    return values
+
+def calculate_smart_payload_size(batch_count, flag_batches=None):
+    """
+    Calculate the total payload size for smart encoding.
+    batch_count: total number of batches
+    flag_batches: list of batches using float (8 bytes) instead of int32 (4 bytes)
+    Returns: total size in bytes
+    """
+    if flag_batches is None:
+        flag_batches = []
+    
+    flag_byte_count = len(flag_batches)
+    num_float_batches = len(flag_batches)
+    num_int_batches = batch_count - num_float_batches
+    
+    # 1 byte for flag count + flag bytes + data bytes
+    total_size = 1 + flag_byte_count + (num_float_batches * 8) + (num_int_batches * 4)
+    return total_size

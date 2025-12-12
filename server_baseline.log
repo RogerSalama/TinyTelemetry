@@ -1,0 +1,567 @@
+UDP Server running on port 12002 (max 200 bytes)
+CSV initialized with headers (file: logs\iot_device_data.csv)
+NACK Scheduler Thread started.
+ -> INIT message from Device 1 (unit=celsius)
+ Data saved (ID:1, seq=1)
+ -> INIT message from Device 2 (unit=fahrenheit)
+ Data saved (ID:2, seq=1)
+ -> INIT message from Device 3 (unit=kelvin)
+ Data saved (ID:3, seq=1)
+ -> INIT message from Device 4 (unit=percent)
+ Data saved (ID:4, seq=1)
+ -> INIT message from Device 5 (unit=volts)
+ Data saved (ID:5, seq=1)
+ -> INIT message from Device 6 (unit=amps)
+ Data saved (ID:6, seq=1)
+ -> INIT message from Device 7 (unit=watts)
+ Data saved (ID:7, seq=1)
+ -> INIT message from Device 8 (unit=meters)
+ Data saved (ID:8, seq=1)
+ -> INIT message from Device 9 (unit=liters)
+ Data saved (ID:9, seq=1)
+ -> INIT message from Device 10 (unit=grams)
+ Data saved (ID:10, seq=1)
+ -> INIT message from Device 11 (unit=pascal)
+ Data saved (ID:11, seq=1)
+ -> INIT message from Device 12 (unit=hertz)
+ Data saved (ID:12, seq=1)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Data saved (ID:1, seq=2)
+ -> DATA received (ID:1, seq=2)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\U0005802b' in position 64: character maps to <undefined>
+ -> DATA received (ID:2, seq=2)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u07b2' in position 74: character maps to <undefined>
+ -> DATA received (ID:3, seq=2)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0700' in position 65: character maps to <undefined>
+ -> DATA received (ID:4, seq=2)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u071b' in position 63: character maps to <undefined>
+ -> DATA received (ID:5, seq=2)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:6, seq=2)
+ -> DATA received (ID:6, seq=2)
+Error parsing smart payload: Expected 60 bytes of data, got 34
+ Data saved (ID:7, seq=2)
+ -> DATA received (ID:7, seq=2)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:8, seq=2)
+ -> DATA received (ID:8, seq=2)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:9, seq=2)
+ -> DATA received (ID:9, seq=2)
+Error parsing smart payload: Expected 84 bytes of data, got 28
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0448' in position 62: character maps to <undefined>
+ -> DATA received (ID:10, seq=2)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0693' in position 63: character maps to <undefined>
+ -> DATA received (ID:11, seq=2)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06e2' in position 62: character maps to <undefined>
+ -> DATA received (ID:12, seq=2)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode characters in position 68-69: character maps to <undefined>
+ -> DATA received (ID:1, seq=3)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u03c7' in position 63: character maps to <undefined>
+ -> DATA received (ID:2, seq=3)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u022b' in position 72: character maps to <undefined>
+ -> DATA received (ID:3, seq=3)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0432' in position 60: character maps to <undefined>
+ -> DATA received (ID:4, seq=3)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0431' in position 66: character maps to <undefined>
+ -> DATA received (ID:5, seq=3)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:6, seq=3)
+ -> DATA received (ID:6, seq=3)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u28cd' in position 58: character maps to <undefined>
+ -> DATA received (ID:7, seq=3)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode characters in position 73-74: character maps to <undefined>
+ -> DATA received (ID:8, seq=3)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0608' in position 61: character maps to <undefined>
+ -> DATA received (ID:9, seq=3)
+Error parsing smart payload: Expected 84 bytes of data, got 28
+ Data saved (ID:10, seq=3)
+ -> DATA received (ID:10, seq=3)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0639' in position 62: character maps to <undefined>
+ -> DATA received (ID:11, seq=3)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u03b0' in position 68: character maps to <undefined>
+ -> DATA received (ID:12, seq=3)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Data saved (ID:1, seq=4)
+ -> DATA received (ID:1, seq=4)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u028c' in position 59: character maps to <undefined>
+ -> DATA received (ID:2, seq=4)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0463' in position 83: character maps to <undefined>
+ -> DATA received (ID:3, seq=4)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u07a7' in position 61: character maps to <undefined>
+ -> DATA received (ID:4, seq=4)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0105' in position 63: character maps to <undefined>
+ -> DATA received (ID:5, seq=4)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:6, seq=4)
+ -> DATA received (ID:6, seq=4)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u6a89' in position 71: character maps to <undefined>
+ -> DATA received (ID:7, seq=4)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:8, seq=4)
+ -> DATA received (ID:8, seq=4)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0105' in position 64: character maps to <undefined>
+ -> DATA received (ID:9, seq=4)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Data saved (ID:10, seq=4)
+ -> DATA received (ID:10, seq=4)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u03c8' in position 67: character maps to <undefined>
+ -> DATA received (ID:11, seq=4)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0785' in position 64: character maps to <undefined>
+ -> DATA received (ID:12, seq=4)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u6172' in position 61: character maps to <undefined>
+ -> DATA received (ID:1, seq=5)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Data saved (ID:2, seq=5)
+ -> DATA received (ID:2, seq=5)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u01f9' in position 85: character maps to <undefined>
+ -> DATA received (ID:3, seq=5)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u047b' in position 71: character maps to <undefined>
+ -> DATA received (ID:4, seq=5)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:5, seq=5)
+ -> DATA received (ID:5, seq=5)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u54dd' in position 82: character maps to <undefined>
+ -> DATA received (ID:6, seq=5)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0472' in position 61: character maps to <undefined>
+ -> DATA received (ID:7, seq=5)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:8, seq=5)
+ -> DATA received (ID:8, seq=5)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:9, seq=5)
+ -> DATA received (ID:9, seq=5)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u153f' in position 59: character maps to <undefined>
+ -> DATA received (ID:10, seq=5)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u8c96' in position 63: character maps to <undefined>
+ -> DATA received (ID:11, seq=5)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u8e8a' in position 75: character maps to <undefined>
+ -> DATA received (ID:12, seq=5)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u5f21' in position 70: character maps to <undefined>
+ -> DATA received (ID:1, seq=6)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0682' in position 58: character maps to <undefined>
+ -> DATA received (ID:2, seq=6)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0308' in position 68: character maps to <undefined>
+ -> DATA received (ID:3, seq=6)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Data saved (ID:4, seq=6)
+ -> DATA received (ID:4, seq=6)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06fb' in position 78: character maps to <undefined>
+ -> DATA received (ID:5, seq=6)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:6, seq=6)
+ -> DATA received (ID:6, seq=6)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Data saved (ID:7, seq=6)
+ -> DATA received (ID:7, seq=6)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0467' in position 66: character maps to <undefined>
+ -> DATA received (ID:8, seq=6)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:9, seq=6)
+ -> DATA received (ID:9, seq=6)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Data saved (ID:10, seq=6)
+ -> DATA received (ID:10, seq=6)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Data saved (ID:11, seq=6)
+ -> DATA received (ID:11, seq=6)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u05fd' in position 65: character maps to <undefined>
+ -> DATA received (ID:12, seq=6)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0654' in position 59: character maps to <undefined>
+ -> DATA received (ID:1, seq=7)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u028e' in position 65: character maps to <undefined>
+ -> DATA received (ID:2, seq=7)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0135' in position 63: character maps to <undefined>
+ -> DATA received (ID:3, seq=7)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u011e' in position 67: character maps to <undefined>
+ -> DATA received (ID:4, seq=7)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0503' in position 59: character maps to <undefined>
+ -> DATA received (ID:5, seq=7)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0142' in position 74: character maps to <undefined>
+ -> DATA received (ID:6, seq=7)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u010b' in position 59: character maps to <undefined>
+ -> DATA received (ID:7, seq=7)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u077a' in position 69: character maps to <undefined>
+ -> DATA received (ID:8, seq=7)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u071d' in position 71: character maps to <undefined>
+ -> DATA received (ID:9, seq=7)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u065d' in position 60: character maps to <undefined>
+ -> DATA received (ID:10, seq=7)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Data saved (ID:11, seq=7)
+ -> DATA received (ID:11, seq=7)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0337' in position 72: character maps to <undefined>
+ -> DATA received (ID:12, seq=7)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06ae' in position 74: character maps to <undefined>
+ -> DATA received (ID:1, seq=8)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Data saved (ID:2, seq=8)
+ -> DATA received (ID:2, seq=8)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Data saved (ID:3, seq=8)
+ -> DATA received (ID:3, seq=8)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06b8' in position 64: character maps to <undefined>
+ -> DATA received (ID:4, seq=8)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u054b' in position 59: character maps to <undefined>
+ -> DATA received (ID:5, seq=8)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0304' in position 59: character maps to <undefined>
+ -> DATA received (ID:6, seq=8)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Data saved (ID:7, seq=8)
+ -> DATA received (ID:7, seq=8)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:8, seq=8)
+ -> DATA received (ID:8, seq=8)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06af' in position 65: character maps to <undefined>
+ -> DATA received (ID:9, seq=8)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u54c2' in position 69: character maps to <undefined>
+ -> DATA received (ID:10, seq=8)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u03e0' in position 60: character maps to <undefined>
+ -> DATA received (ID:11, seq=8)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0643' in position 74: character maps to <undefined>
+ -> DATA received (ID:12, seq=8)
+Error parsing smart payload: Expected 28 bytes of data, got 22
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u03f2' in position 70: character maps to <undefined>
+ -> DATA received (ID:1, seq=9)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u04bc' in position 63: character maps to <undefined>
+ -> DATA received (ID:2, seq=9)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0792' in position 61: character maps to <undefined>
+ -> DATA received (ID:3, seq=9)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0445' in position 68: character maps to <undefined>
+ -> DATA received (ID:4, seq=9)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u01a7' in position 65: character maps to <undefined>
+ -> DATA received (ID:5, seq=9)
+Error parsing smart payload: Expected 24 bytes of data, got 23
+ Data saved (ID:6, seq=9)
+ -> DATA received (ID:6, seq=9)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u038e' in position 67: character maps to <undefined>
+ -> DATA received (ID:7, seq=9)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:8, seq=9)
+ -> DATA received (ID:8, seq=9)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Data saved (ID:9, seq=9)
+ -> DATA received (ID:9, seq=9)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0503' in position 64: character maps to <undefined>
+ -> DATA received (ID:10, seq=9)
+Error parsing smart payload: Expected 136 bytes of data, got -33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u023b' in position 60: character maps to <undefined>
+ -> DATA received (ID:11, seq=9)
+Error parsing smart payload: Expected 40 bytes of data, got 24
+ Data saved (ID:12, seq=9)
+ -> DATA received (ID:12, seq=9)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 2
+ Data saved (ID:2, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 3
+ Data saved (ID:3, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 4
+ Data saved (ID:4, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 5
+ Data saved (ID:5, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 6
+ Data saved (ID:6, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 7
+ Data saved (ID:7, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 9
+ Data saved (ID:9, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 10
+ Data saved (ID:10, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 11
+ Data saved (ID:11, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 12
+ Data saved (ID:12, seq=0)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0533' in position 66: character maps to <undefined>
+ -> DATA received (ID:1, seq=10)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u04d6' in position 69: character maps to <undefined>
+ -> DATA received (ID:2, seq=10)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Data saved (ID:3, seq=10)
+ -> DATA received (ID:3, seq=10)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Data saved (ID:4, seq=10)
+ -> DATA received (ID:4, seq=10)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u05a1' in position 72: character maps to <undefined>
+ -> DATA received (ID:5, seq=10)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:6, seq=10)
+ -> DATA received (ID:6, seq=10)
+Error parsing smart payload: Expected 60 bytes of data, got 34
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0544' in position 68: character maps to <undefined>
+ -> DATA received (ID:7, seq=10)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:8, seq=10)
+ -> DATA received (ID:8, seq=10)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0581' in position 60: character maps to <undefined>
+ -> DATA received (ID:9, seq=10)
+Error parsing smart payload: Expected 84 bytes of data, got 28
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06de' in position 60: character maps to <undefined>
+ -> DATA received (ID:10, seq=10)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\uc12a' in position 66: character maps to <undefined>
+ -> DATA received (ID:11, seq=10)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\x91' in position 61: character maps to <undefined>
+ -> DATA received (ID:12, seq=10)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u04f5' in position 71: character maps to <undefined>
+ -> DATA received (ID:1, seq=11)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode characters in position 71-72: character maps to <undefined>
+ -> DATA received (ID:2, seq=11)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\uc598' in position 64: character maps to <undefined>
+ -> DATA received (ID:3, seq=11)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Data saved (ID:4, seq=11)
+ -> DATA received (ID:4, seq=11)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:5, seq=11)
+ -> DATA received (ID:5, seq=11)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u4967' in position 70: character maps to <undefined>
+ -> DATA received (ID:6, seq=11)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\x86' in position 61: character maps to <undefined>
+ -> DATA received (ID:7, seq=11)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06d8' in position 79: character maps to <undefined>
+ -> DATA received (ID:8, seq=11)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:9, seq=11)
+ -> DATA received (ID:9, seq=11)
+Error parsing smart payload: Expected 84 bytes of data, got 28
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06e0' in position 61: character maps to <undefined>
+ -> DATA received (ID:10, seq=11)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u03e3' in position 68: character maps to <undefined>
+ -> DATA received (ID:11, seq=11)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u06fe' in position 70: character maps to <undefined>
+ -> DATA received (ID:12, seq=11)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u061c' in position 69: character maps to <undefined>
+ -> DATA received (ID:1, seq=12)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Data saved (ID:2, seq=12)
+ -> DATA received (ID:2, seq=12)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u050d' in position 68: character maps to <undefined>
+ -> DATA received (ID:3, seq=12)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Data saved (ID:4, seq=12)
+ -> DATA received (ID:4, seq=12)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u056e' in position 60: character maps to <undefined>
+ -> DATA received (ID:5, seq=12)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:6, seq=12)
+ -> DATA received (ID:6, seq=12)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0301' in position 73: character maps to <undefined>
+ -> DATA received (ID:7, seq=12)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u02d7' in position 73: character maps to <undefined>
+ -> DATA received (ID:8, seq=12)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:9, seq=12)
+ -> DATA received (ID:9, seq=12)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u038c' in position 63: character maps to <undefined>
+ -> DATA received (ID:10, seq=12)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode characters in position 63-64: character maps to <undefined>
+ -> DATA received (ID:11, seq=12)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u057a' in position 63: character maps to <undefined>
+ -> DATA received (ID:12, seq=12)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Data saved (ID:1, seq=13)
+ -> DATA received (ID:1, seq=13)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u01a7' in position 60: character maps to <undefined>
+ -> DATA received (ID:2, seq=13)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode characters in position 66-67: character maps to <undefined>
+ -> DATA received (ID:3, seq=13)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u050e' in position 70: character maps to <undefined>
+ -> DATA received (ID:4, seq=13)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Data saved (ID:5, seq=13)
+ -> DATA received (ID:5, seq=13)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u011e' in position 63: character maps to <undefined>
+ -> DATA received (ID:6, seq=13)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u04c4' in position 65: character maps to <undefined>
+ -> DATA received (ID:7, seq=13)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u05b5' in position 73: character maps to <undefined>
+ -> DATA received (ID:8, seq=13)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u04f1' in position 81: character maps to <undefined>
+ -> DATA received (ID:9, seq=13)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u02ec' in position 79: character maps to <undefined>
+ -> DATA received (ID:10, seq=13)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Data saved (ID:11, seq=13)
+ -> DATA received (ID:11, seq=13)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u04c2' in position 65: character maps to <undefined>
+ -> DATA received (ID:12, seq=13)
+Error parsing smart payload: Expected 44 bytes of data, got 38
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u02ac' in position 64: character maps to <undefined>
+ -> DATA received (ID:1, seq=14)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0230' in position 62: character maps to <undefined>
+ -> DATA received (ID:2, seq=14)
+Error parsing smart payload: Expected 48 bytes of data, got 37
+ Data saved (ID:3, seq=14)
+ -> DATA received (ID:3, seq=14)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Data saved (ID:4, seq=14)
+ -> DATA received (ID:4, seq=14)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0559' in position 60: character maps to <undefined>
+ -> DATA received (ID:5, seq=14)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u017b' in position 85: character maps to <undefined>
+ -> DATA received (ID:6, seq=14)
+Error parsing smart payload: Expected 64 bytes of data, got 33
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u88a9' in position 67: character maps to <undefined>
+ -> DATA received (ID:7, seq=14)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0182' in position 69: character maps to <undefined>
+ -> DATA received (ID:8, seq=14)
+Error parsing smart payload: Expected 40 bytes of data, got 39
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u0684' in position 76: character maps to <undefined>
+ -> DATA received (ID:9, seq=14)
+Error parsing smart payload: Expected 88 bytes of data, got 27
+ Data saved (ID:10, seq=14)
+ -> DATA received (ID:10, seq=14)
+Error parsing smart payload: Expected 196 bytes of data, got -20
+ Error writing/rewriting to CSV: 'charmap' codec can't encode character '\u056c' in position 61: character maps to <undefined>
+ -> DATA received (ID:11, seq=14)
+Error parsing smart payload: Expected 52 bytes of data, got 36
+ Data saved (ID:12, seq=14)
+ -> DATA received (ID:12, seq=14)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 2
+ Data saved (ID:2, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 3
+ Data saved (ID:3, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 4
+ Data saved (ID:4, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 5
+ Data saved (ID:5, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 6
+ Data saved (ID:6, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 7
+ Data saved (ID:7, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 9
+ Data saved (ID:9, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 10
+ Data saved (ID:10, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 11
+ Data saved (ID:11, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 12
+ Data saved (ID:12, seq=0)

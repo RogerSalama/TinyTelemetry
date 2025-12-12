@@ -43,6 +43,20 @@ sent_history = {}
 # print(f"Sent INIT (Device={MY_DEVICE_ID}, seq={seq_num})")
 # seq_num += 1
 
+def compress_data(values):
+    compressed_values = []
+    flag_batches = []
+    for i, value in enumerate(values, start=1):
+        int_value = value * 10**6
+        int_value = int(int_value)
+        if (int_value >= -2147483648) and (int_value <= 2147483647):
+            compressed_values.append(int_value)
+        else:
+            compressed_values.append(value)
+            flag_batches.append(i)
+            
+    return compressed_values, flag_batches
+
 def send_heartbeat():
     """Send heartbeat messages every 1 second from all devices."""
     global running
@@ -215,15 +229,19 @@ else:
                             except Exception:
                                 # if non-numeric token appears, fallback to 0.0 for that slot
                                 values.append(0.0)
-
                         
 
-                        fmt = '!' + ('d' * len(values))
-                        enc_payload = struct.pack(fmt, *values)
+                        compressed_data, flag_batches = compress_data(values)
 
-                        # Encrypt the binary payload (XOR stream) so packed
-                        # doubles remain 8-byte aligned. Uses device_id & seq
-                        enc_payload = encrypt_bytes(enc_payload, sensor['device_id'], sensor['seq_num'])
+                        # Encode with smart structure
+                        raw_payload = encode_smart_payload(compressed_data, flag_batches)
+
+                        # Encrypt the payload
+                        enc_payload = encrypt_bytes(raw_payload, sensor['device_id'], sensor['seq_num'])
+
+                        # Calculate expected size for debugging
+                        expected_size = calculate_smart_payload_size(len(compressed_data), flag_batches)
+                        print(f"Payload size: {len(raw_payload)} bytes (expected: {expected_size})")
 
 
                         header = build_checksum_header(device_id=sensor['device_id'], batch_count=batch_count,
