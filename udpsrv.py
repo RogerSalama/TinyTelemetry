@@ -12,7 +12,7 @@ from protocol import *
 sys.stdout.reconfigure(line_buffering=True)
 SERVER_ID=1
 # --- Server setup ---
-SERVER_PORT = 12003
+SERVER_PORT = 12000
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('', SERVER_PORT))
