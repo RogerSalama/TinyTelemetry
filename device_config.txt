@@ -1,0 +1,17 @@
+# device_id,unit,batch_file
+0,celsius,device_0.txt
+1,fahrenheit,device_1.txt
+2,kelvin,device_2.txt
+3,percent,device_3.txt
+4,volts,device_4.txt
+5,amps,device_5.txt
+6,watts,device_6.txt
+7,meters,device_7.txt
+8,liters,device_8.txt
+9,grams,device_9.txt
+10,pascal,device_10.txt
+11,hertz,device_11.txt
+12,meters,device_12.txt
+13,db,device_13.txt
+14,pascal,device_14.txt
+15,celsius,device_15.txt
