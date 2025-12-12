@@ -1,0 +1,1 @@
+server_timestamp,device_id,unit/batch_count,sequence_number,device_timestamp,message_type,payload,client_address,delay_seconds,duplicate_flag,gap_flag,packet_size,cpu_time_ms

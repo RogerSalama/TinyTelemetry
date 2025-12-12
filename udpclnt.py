@@ -5,6 +5,7 @@ import os
 import sys
 import struct
 from protocol import *
+from udpsrv import SERVER_PORT
 
 # Configurable defaults
 DEFAULT_INTERVAL_DURATION = 20  # total test duration = 60s * 3 intervals
@@ -28,7 +29,7 @@ if len(sys.argv) > 2:
 else:
     intervals = DEFAULT_INTERVALS
 
-SERVER_ADDR = ('localhost', 12002)
+SERVER_ADDR = ('localhost', SERVER_PORT)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 running = True
@@ -87,7 +88,7 @@ def receive_nacks():
     while running:
         try:
             # Data received is a bytes object
-            data, addr = client_socket.recvfrom(1200) 
+            data, addr = client_socket.recvfrom(SERVER_PORT) 
             
             # Parse the header (which requires bytes)
             header = parse_header(data)

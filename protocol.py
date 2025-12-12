@@ -211,6 +211,7 @@ def encode_smart_payload(values, flag_batches=None):
     
     # Create the flag section
     flag_byte_count = len(flag_batches)
+    flag_byte_count = struct.pack('B', flag_byte_count)
     flag_bytes = bytes(flag_batches)  # Each flag is 1 byte (1-10)
     
     # Create the data section
@@ -224,7 +225,7 @@ def encode_smart_payload(values, flag_batches=None):
             data_bytes.extend(struct.pack('!i', int(value)))
     
     # Combine: flag_byte_count (1 byte) + flag_bytes + data_bytes
-    return bytes(flag_byte_count) + flag_bytes + bytes(data_bytes)
+    return flag_byte_count + flag_bytes + bytes(data_bytes)
 
 def decode_smart_payload(payload_bytes, batch_count):
     """

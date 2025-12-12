@@ -12,7 +12,7 @@ from protocol import *
 sys.stdout.reconfigure(line_buffering=True)
 SERVER_ID=1
 # --- Server setup ---
-SERVER_PORT = 12002
+SERVER_PORT = 12003
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('', SERVER_PORT))
@@ -93,7 +93,7 @@ def save_to_csv(data_dict, is_update=False):
             # --- REWRITE LOGIC FOR DUPLICATES ---
             rows = []
             row_found = False
-            with open(CSV_FILENAME, 'r', newline='') as csvfile:
+            with open(CSV_FILENAME, 'r', newline='', encoding='utf-8') as csvfile:
                 reader = csv.reader(csvfile)
                 # Read headers
                 rows.append(next(reader)) 
@@ -109,7 +109,7 @@ def save_to_csv(data_dict, is_update=False):
             
             if row_found:
                 # Rewrite the entire file with the updated row
-                with open(CSV_FILENAME, 'w', newline='') as csvfile:
+                with open(CSV_FILENAME, 'w', newline='', encoding='utf-8') as csvfile:
                     writer = csv.writer(csvfile)
                     writer.writerows(rows)
             else:
@@ -117,7 +117,7 @@ def save_to_csv(data_dict, is_update=False):
 
         else:
             # --- APPEND LOGIC for new packets ---
-            with open(CSV_FILENAME, 'a', newline='') as csvfile:
+            with open(CSV_FILENAME, 'a', newline='', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(new_row)
             # Add to the global dictionary to track it was logged
