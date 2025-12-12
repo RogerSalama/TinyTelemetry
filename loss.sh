@@ -48,6 +48,10 @@ for i in {1..5}; do
     sudo tcpdump -i lo udp port 12002 -w logs/loss_run${i}.pcap &>/dev/null &
     PCAP_PID=$!
 
+    # Remove previous server CSV to start fresh
+    SERVER_CSV=logs/iot_device_data.csv
+    rm -f "$SERVER_CSV"
+
     # Start server
     SERVER_LOG=logs/server_loss_run${i}.log
     $PYTHON udpsrv.py > "$SERVER_LOG" 2>&1 &
@@ -56,16 +60,27 @@ for i in {1..5}; do
 
     # Run client
     CLIENT_LOG=logs/client_loss_run${i}.log
+    set +e
     $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1
+    CLIENT_EXIT=$?
+    set -e
+    if [ $CLIENT_EXIT -ne 0 ]; then
+        echo "Client crashed during run $i (exit code $CLIENT_EXIT)"
+    fi
 
     # Stop server & PCAP
-    kill "$SERVER_PID" || true
-    kill "$PCAP_PID" || true
+    kill "$SERVER_PID" 2>/dev/null || true
+    kill "$PCAP_PID" 2>/dev/null || true
     echo "PCAP saved: logs/loss_run${i}.pcap"
 
     # Save NetEm command to log (do not execute)
     echo "sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%" > logs/netem_loss_run${i}.txt
     echo "NetEm log saved: logs/netem_loss_run${i}.txt"
+
+    # ---- Generate CSV for this run ----
+    CSV_FILE=logs/loss_run${i}.csv
+    cp "$SERVER_CSV" "$CSV_FILE"
+    echo "CSV saved for run $i: $CSV_FILE"
 
     # ---- Packets per interval and sequence gaps/duplicates from client log ----
     echo " Device $DEVICE_ID: Packets and sequence info for run $i"
@@ -108,5 +123,5 @@ for i in {1..5}; do
 done
 
 # Reset network
-sudo tc qdisc del dev lo root
+sudo tc qdisc del dev lo root 2>/dev/null || true
 echo " Loss test complete."

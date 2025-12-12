@@ -77,6 +77,11 @@ for run in {1..5}; do
     # NetEm log (none for baseline)
     echo "None" > logs/netem_baseline_run${run}.txt
     echo "NetEm log saved: logs/netem_baseline_run${run}.txt"
+    # ---- Generate CSV for this run ----
+    CSV_FILE=logs/baseline_run${run}.csv
+    cp logs/iot_device_data.csv "$CSV_FILE"
+    echo "CSV saved for run $run: $CSV_FILE"
+
 
     # ---- Acceptance Criteria Check per interval per device ----
     for DEVICE_ID in "${DEVICE_IDS[@]}"; do
