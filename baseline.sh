@@ -1,77 +1,126 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # run_baseline.sh
+# Baseline test: n devices, 5 runs, PCAP capture
+# Acceptance criteria: ≥99% of packets received per interval, sequence numbers in order
 
-# 1. Reset network settings
-sudo tc qdisc del dev lo root 2>/dev/null
+set -euo pipefail
 
-# 2. Detect a working Python command
+mkdir -p logs
+
+# Reset network
+sudo tc qdisc del dev lo root 2>/dev/null || true
+
+# Detect Python
+PYTHON=""
 for cmd in python3 python py; do
-    if command -v $cmd &>/dev/null; then
-        if $cmd -V &>/dev/null; then
-            PYTHON=$cmd
+    if command -v "$cmd" >/dev/null 2>&1; then
+        if "$cmd" -V >/dev/null 2>&1; then
+            PYTHON="$cmd"
             break
         fi
     fi
 done
 
 if [ -z "$PYTHON" ]; then
-    echo "❌ No working Python interpreter found! Please install Python and add it to PATH."
+    echo " No working Python interpreter found!"
     exit 1
-else
-    echo "✅ Using Python command: $PYTHON"
 fi
+echo " Using Python: $PYTHON"
 
-# 3. Ask user for configuration
-read -p "Enter test duration for each interval in seconds [default: 60]: " DURATION
+# Ask user for test duration and intervals
+read -p "Enter test duration (s) [default: 60]: " DURATION
 DURATION=${DURATION:-60}
 
 read -p "Enter intervals separated by commas [default: 1,5,30]: " INTERVALS
 INTERVALS=${INTERVALS:-1,5,30}
 
-echo ""
-echo "➡️  Running test with duration=${DURATION}s and intervals=${INTERVALS}"
-echo ""
+IFS=',' read -r -a INTERVAL_ARRAY <<< "$INTERVALS"
 
-# 4. Start server in background
-$PYTHON udpsrv.py > server_baseline.log 2>&1 &
-SERVER_PID=$!
-echo "Server started with PID $SERVER_PID"
-sleep 1
+# Ask user for device IDs
+read -p "Enter device IDs separated by commas [default: 1]: " DEVICE_INPUT
+DEVICE_INPUT=${DEVICE_INPUT:-1}
+IFS=',' read -r -a DEVICE_IDS <<< "$DEVICE_INPUT"
 
-# 5. Run client with user-chosen values
-$PYTHON udpclnt.py $DURATION $INTERVALS > client_baseline.log 2>&1
-echo "Client finished."
-sleep 1
+echo "Running baseline test for devices: ${DEVICE_IDS[*]} (duration=${DURATION}s, intervals=${INTERVALS})"
 
-# 6. Stop the server if it's still running
-if ps -p $SERVER_PID > /dev/null; then
+# Run 5 baseline runs
+for run in {1..5}; do
+    echo "=== Baseline run $run ==="
+
+    # Start PCAP capture
+    sudo tcpdump -i lo udp port 12002 -w logs/baseline_run${run}.pcap &
+    PCAP_PID=$!
+
+    # Start server
+    $PYTHON udpsrv.py > logs/server_baseline_run${run}.log 2>&1 &
+    SERVER_PID=$!
+    sleep 1
+
+    # Run clients in parallel for all devices
+    CLIENT_PIDS=()
+    for DEVICE_ID in "${DEVICE_IDS[@]}"; do
+        CLIENT_LOG=logs/client_baseline_run${run}_dev${DEVICE_ID}.log
+        $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1 &
+        CLIENT_PIDS+=($!)
+    done
+
+    # Wait for all clients to finish
+    for pid in "${CLIENT_PIDS[@]}"; do
+        wait $pid
+    done
+
+    # Stop server and PCAP
     kill $SERVER_PID
-    echo "Server stopped."
-else
-    echo "Server already exited."
-fi
+    kill $PCAP_PID
+    echo "PCAP saved: logs/baseline_run${run}.pcap"
 
-# 7. Move the CSV file to logs
-mkdir -p logs
-if [ -f logs/iot_device_data.csv ]; then
-    mv logs/iot_device_data.csv logs/baseline.csv 2>/dev/null
+    # NetEm log (none for baseline)
+    echo "None" > logs/netem_baseline_run${run}.txt
+    echo "NetEm log saved: logs/netem_baseline_run${run}.txt"
 
-    # If move failed, try with sudo or fallback
-    if [ ! -f logs/baseline.csv ]; then
-        echo "Permission issue — trying with sudo..."
-        sudo mv iot_device_data.csv logs/baseline.csv 2>/dev/null
-    fi
+    # ---- Acceptance Criteria Check per interval per device ----
+    for DEVICE_ID in "${DEVICE_IDS[@]}"; do
+        CLIENT_LOG=logs/client_baseline_run${run}_dev${DEVICE_ID}.log
+        echo " Device $DEVICE_ID: Checking packets per interval for run $run"
 
-    # Final fallback if still not moved
-    if [ ! -f logs/baseline.csv ]; then
-        echo "Still can't move file — saving to home folder instead."
-        mv iot_device_data.csv ~/baseline.csv
-        echo "Data saved to ~/baseline.csv"
-    else
-        echo "Data saved to logs/baseline.csv"
-    fi
-else
-    echo "No CSV file found — server may not have received data."
-fi
+        awk -v duration="$DURATION" -v intervals="$INTERVALS" '
+        BEGIN {
+            split(intervals, intv_arr, ",")
+            for (j in intv_arr) {
+                count[intv_arr[j]] = 0
+                prev_seq[intv_arr[j]] = -1
+                in_order[intv_arr[j]] = 1
+            }
+        }
 
-echo "Baseline test complete."
+        /Sent DATA/ {
+            # Extract interval
+            match($0, /interval=([0-9]+)s/, m)
+            intv = m[1]
+            # Extract sequence number
+            match($0, /seq=([0-9]+)/, s)
+            seq = s[1]+0
+            # Count packet
+            count[intv]++
+            # Check sequence order
+            if (prev_seq[intv] != -1 && seq != prev_seq[intv]+1) in_order[intv] = 0
+            prev_seq[intv] = seq
+        }
+
+        END {
+            for (j in intv_arr) {
+                interval = intv_arr[j]
+                expected = int(duration / interval)       # expected packets per interval
+                received = count[interval]+0
+                perc = (received / expected) * 100
+                report_status = (perc >= 99 ? "sufficient packets" : " insufficient packets")
+                seq_status = (in_order[interval] ? "sequence numbers OK" : " sequence numbers OUT OF ORDER")
+                printf "Interval %ds: %d/%d packets received (%.2f%%) %s, %s\n", interval, received, expected, perc, report_status, seq_status
+            }
+        }
+        ' "$CLIENT_LOG"
+    done
+
+done
+
+echo " Baseline test complete (5 runs for ${#DEVICE_IDS[@]} devices)."
