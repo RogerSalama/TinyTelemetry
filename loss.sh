@@ -13,21 +13,19 @@ sudo tc qdisc del dev lo root 2>/dev/null || true
 # Apply 5% packet loss
 LOSS_PERCENT=5
 sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%
-echo "Applied ${LOSS_PERCENT}% packet loss on loopback"
+echo " Applied ${LOSS_PERCENT}% packet loss on loopback"
 
 # Detect Python
 PYTHON=""
 for cmd in python3 python py; do
     if command -v "$cmd" >/dev/null 2>&1; then
-        if "$cmd" -V >/dev/null 2>&1; then
-            PYTHON="$cmd"
-            break
-        fi
+        PYTHON="$cmd"
+        break
     fi
 done
 
 if [ -z "$PYTHON" ]; then
-    echo " No working Python interpreter found!"
+    echo "No working Python interpreter found!"
     exit 1
 fi
 echo "Using Python: $PYTHON"
@@ -41,17 +39,18 @@ INTERVALS=${INTERVALS:-1,5,30}
 IFS=',' read -r -a INTERVAL_ARRAY <<< "$INTERVALS"
 
 DEVICE_ID=1
-echo "➡️ Running loss scenario test for Device $DEVICE_ID (duration=${DURATION}s, intervals=${INTERVALS})"
+echo " Running loss scenario test for Device $DEVICE_ID (duration=${DURATION}s, intervals=${INTERVALS})"
 
 for i in {1..5}; do
     echo "=== Loss test run $i ==="
 
     # Start PCAP capture
-    sudo tcpdump -i lo udp port 12002 -w logs/loss_run${i}.pcap &
+    sudo tcpdump -i lo udp port 12002 -w logs/loss_run${i}.pcap &>/dev/null &
     PCAP_PID=$!
 
     # Start server
-    $PYTHON udpsrv.py > logs/server_loss_run${i}.log 2>&1 &
+    SERVER_LOG=logs/server_loss_run${i}.log
+    $PYTHON udpsrv.py > "$SERVER_LOG" 2>&1 &
     SERVER_PID=$!
     sleep 1
 
@@ -59,12 +58,12 @@ for i in {1..5}; do
     CLIENT_LOG=logs/client_loss_run${i}.log
     $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1
 
-    # Stop server and PCAP
-    kill $SERVER_PID
-    kill $PCAP_PID
+    # Stop server & PCAP
+    kill "$SERVER_PID" || true
+    kill "$PCAP_PID" || true
     echo "PCAP saved: logs/loss_run${i}.pcap"
 
-    # NetEm log
+    # Save NetEm command to log (do not execute)
     echo "sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%" > logs/netem_loss_run${i}.txt
     echo "NetEm log saved: logs/netem_loss_run${i}.txt"
 
@@ -90,7 +89,7 @@ for i in {1..5}; do
             received = count[interval]+0
             perc = (received/expected)*100
             status = (perc>=99 ? " sufficient packets" : " insufficient packets")
-            
+
             # Duplicates
             dup_count=0
             for (k in seq) {
@@ -99,8 +98,8 @@ for i in {1..5}; do
             }
             dup_rate = (dup_count/ (received>0?received:1))*100
             dup_status = (dup_rate<=1 ? " duplicates ≤ 1%" : " duplicates > 1%")
-            
-            gap_status = (gaps[interval]>0 ? "sequence gaps detected" : " no sequence gaps")
+
+            gap_status = (gaps[interval]>0 ? " sequence gaps detected" : " no sequence gaps")
             printf "Interval %ds: %d/%d packets sent (%.2f%%) %s, %s, %s (dup rate %.2f%%)\n", interval, received, expected, perc, status, gap_status, dup_status, dup_rate
         }
     }
@@ -108,6 +107,6 @@ for i in {1..5}; do
 
 done
 
-
+# Reset network
 sudo tc qdisc del dev lo root
 echo " Loss test complete."
