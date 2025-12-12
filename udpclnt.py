@@ -66,7 +66,7 @@ def send_heartbeat():
         for sensor in sensors:
             header = build_checksum_header(device_id=sensor['device_id'], batch_count=0, seq_num=0, msg_type=HEART_BEAT)
             client_socket.sendto(header, SERVER_ADDR)
-            print(f"Sent HEARTBEAT for Device {sensor['device_id']} (seq={sensor['seq_num']})")
+            print(f"Sent HEARTBEAT for Device {sensor['device_id']}")
             # sensor['seq_num'] += 1
         # header = build_header(device_id=MY_DEVICE_ID, batch_count=0, seq_num=seq_num, msg_type=HEART_BEAT)
         # client_socket.sendto(header, SERVER_ADDR)
