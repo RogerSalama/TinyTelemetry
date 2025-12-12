@@ -1,0 +1,33 @@
+Sent INIT (Device=1, seq=1, unit=fahrenheit)
+Starting test for Device 1 with intervals [1, 10] (20s each)...
+
+--- Device 1: Running 1s interval for 20 seconds ---
+Sent DATA (Device=1, seq=2, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=3, interval=1s, batch=['69.8'])
+Sent DATA (Device=1, seq=4, interval=1s, batch=['71.0', '71.1', '71.2'])
+Sent DATA (Device=1, seq=5, interval=1s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=6, interval=1s, batch=['72.0'])
+Sent DATA (Device=1, seq=7, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=8, interval=1s, batch=['69.8'])
+Sent DATA (Device=1, seq=9, interval=1s, batch=['71.0', '71.1', '71.2'])
+Sent DATA (Device=1, seq=10, interval=1s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=11, interval=1s, batch=['72.0'])
+Sent HEARTBEAT for Device 1
+Sent DATA (Device=1, seq=12, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=13, interval=1s, batch=['69.8'])
+Sent DATA (Device=1, seq=14, interval=1s, batch=['71.0', '71.1', '71.2'])
+Sent DATA (Device=1, seq=15, interval=1s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=16, interval=1s, batch=['72.0'])
+Sent DATA (Device=1, seq=17, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=18, interval=1s, batch=['69.8'])
+Sent DATA (Device=1, seq=19, interval=1s, batch=['71.0', '71.1', '71.2'])
+Sent DATA (Device=1, seq=20, interval=1s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=21, interval=1s, batch=['72.0'])
+
+--- Device 1: Running 10s interval for 20 seconds ---
+Sent DATA (Device=1, seq=22, interval=10s, batch=['70.0', '70.2'])
+Sent HEARTBEAT for Device 1
+Sent DATA (Device=1, seq=23, interval=10s, batch=['69.8'])
+Sent HEARTBEAT for Device 1
+Test finished. Closing client...
+Client finished.
