@@ -1,0 +1,38 @@
+Sent INIT (Device=1, seq=1, unit=fahrenheit)
+Starting test for Device 1 with intervals [1, 5, 10] (10s each)...
+
+--- Device 1: Running 1s interval for 10 seconds ---
+Sent DATA (Device=1, seq=2, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=3, interval=1s, batch=['69.8'])
+
+ [!] Received NACK for Device 1, seq: 1
+ [>>] Retransmitting DATA seq=1
+ [^] Server requested re-INIT for Device 1.
+ [>>] Sent re-INIT (seq=1, unit=fahrenheit)
+
+ [!] Received NACK for Device 1, seq: 2
+ [x] Cannot retransmit seq=2 (not in history or INIT/HEARTBEAT)
+Sent DATA (Device=1, seq=2, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=3, interval=1s, batch=['69.8'])
+Sent DATA (Device=1, seq=4, interval=1s, batch=['71.0', '71.1', '71.2'])
+Sent DATA (Device=1, seq=5, interval=1s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=6, interval=1s, batch=['72.0'])
+Sent DATA (Device=1, seq=7, interval=1s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=8, interval=1s, batch=['69.8'])
+Sent DATA (Device=1, seq=9, interval=1s, batch=['71.0', '71.1', '71.2'])
+
+ [!] Received NACK for Device 1, seq: 8
+ [>>] Retransmitting DATA seq=8
+Sent HEARTBEAT for Device 1
+
+--- Device 1: Running 5s interval for 10 seconds ---
+Sent DATA (Device=1, seq=10, interval=5s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=11, interval=5s, batch=['72.0'])
+Sent HEARTBEAT for Device 1
+Sent DATA (Device=1, seq=12, interval=5s, batch=['70.0', '70.2'])
+
+--- Device 1: Running 10s interval for 10 seconds ---
+Sent DATA (Device=1, seq=13, interval=10s, batch=['69.8'])
+Sent HEARTBEAT for Device 1
+Test finished. Closing client...
+Client finished.

@@ -53,7 +53,6 @@ def save_to_csv(data_dict, is_update=False):
     """Save data to CSV; update duplicate_flag if needed."""
     seq = str(data_dict['seq'])
     device_id = str(data_dict['device_id'])
-    # Map message type to string
     msg_type = data_dict['msg_type']
     if msg_type == MSG_INIT:
         msg_type_str = "INIT"
@@ -63,13 +62,12 @@ def save_to_csv(data_dict, is_update=False):
         msg_type_str = "HEARTBEAT"
     else:
         msg_type_str = f"UNKNOWN({msg_type})"
-    # --- Base64 encode payload ---
+
+    
     payload = data_dict['payload']
-    if isinstance(payload, str):
-        payload_bytes = payload.encode('utf-8', errors='ignore')
-    else:
-        payload_bytes = payload
-    payload_b64 = base64.b64encode(payload_bytes).decode('ascii')
+    if isinstance(payload, bytes):
+        payload = payload.decode('utf-8', errors='ignore')
+
     new_row = [
         data_dict['server_timestamp'],
         device_id,
@@ -77,7 +75,7 @@ def save_to_csv(data_dict, is_update=False):
         seq,
         data_dict['timestamp'],
         msg_type_str,
-        payload_b64,
+        payload,  
         data_dict['client_address'],
         str(data_dict['delay_seconds']),
         str(data_dict['duplicate_flag']),
@@ -85,15 +83,14 @@ def save_to_csv(data_dict, is_update=False):
         str(data_dict['packet_size']),
         f"{data_dict['cpu_time_ms']:.4f}"
     ]
+
     try:
         if is_update:
             rows = []
             row_found = False
             with open(CSV_FILENAME, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile)
-                # Read headers
                 rows.append(next(reader))
-                # Read data rows
                 for row in reader:
                     if row[1] == device_id and row[3] == seq:
                         row[9] = '1'
@@ -113,6 +110,7 @@ def save_to_csv(data_dict, is_update=False):
             print(f" Data saved (ID:{device_id}, seq={seq})")
     except Exception as e:
         print(f" Error writing/rewriting to CSV: {e}")
+
 
 # --- NACK Handling Functions ---
 server_seq = 1
@@ -224,8 +222,8 @@ class _ReorderBuffer:  # ADDED
         out = [heapq.heappop(self.heap)[0] for _ in range(len(self.heap))]
         out.sort(key=lambda p: p.ts_key_ms)
         return out
-def _save_reordered(pkt_list):  # ADDED
-    """Append flushed packets to the reordered CSV with the same columns."""
+def _save_reordered(pkt_list):
+    """Append flushed packets to the reordered CSV with normal payload (no base64)."""
     if not pkt_list:
         return
     _init_reorder_csv()
@@ -242,14 +240,11 @@ def _save_reordered(pkt_list):  # ADDED
                 msg_type_str = "HEARTBEAT"
             else:
                 msg_type_str = f"UNKNOWN({msg_type})"
+
             payload = d['payload']
-            # Original CSV already base64 encodes the payload in save_to_csv(), 
-            # but here we write a comparable row for analysis.
-            if isinstance(payload, str):
-                payload_bytes = payload.encode('utf-8', errors='ignore')
-            else:
-                payload_bytes = payload
-            payload_b64 = base64.b64encode(payload_bytes).decode('ascii')
+            if isinstance(payload, bytes):
+                payload = payload.decode('utf-8', errors='ignore')
+
             writer.writerow([
                 d['server_timestamp'],
                 d['device_id'],
@@ -257,7 +252,7 @@ def _save_reordered(pkt_list):  # ADDED
                 d['seq'],
                 d['timestamp'],
                 msg_type_str,
-                payload_b64,
+                payload,  # <-- normal payload
                 d['client_address'],
                 d['delay_seconds'],
                 1 if p.dup else 0,
@@ -265,6 +260,7 @@ def _save_reordered(pkt_list):  # ADDED
                 d['packet_size'],
                 f"{d['cpu_time_ms']:.4f}",
             ])
+
 
 # ADDED: metrics accumulators (aggregate for metrics.csv)
 metrics_packets = 0

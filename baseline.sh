@@ -81,8 +81,13 @@ for run in {1..5}; do
     done
 
     # Stop server and PCAP
-    kill $SERVER_PID || true
-    kill $PCAP_PID || true
+   if kill -0 "$SERVER_PID" 2>/dev/null; then
+        kill "$SERVER_PID"
+    fi
+
+    if kill -0 "$PCAP_PID" 2>/dev/null; then
+        kill "$PCAP_PID"
+    fi
     echo "PCAP saved: $PCAP_FILE"
 
     # NetEm log (none for baseline)
