@@ -1,0 +1,12 @@
+UDP Server running on port 12002 (max 200 bytes)
+CSV initialized with headers (file: logs/iot_device_data.csv)
+NACK Scheduler Thread started.
+ [!] Gap Detected! ID:1, Missing packets: 1
+ [~] Scheduled NACK for ID:1, seq: 1 at T + 0.1s
+ -> INIT message from Device 1 (unit=fahrenheit)
+ Data saved (ID:1, seq=1)
+ [~] Scheduled NACK for ID:1, seq: 2 at T + 0.1s
+ Data saved (ID:1, seq=3)
+ -> DATA received (ID:1, seq=3) with GAP.
+ [N] Called send_NACK function for ID:1, seq:2
+ [<<] Sent NACK request for ID:1, seq: 2

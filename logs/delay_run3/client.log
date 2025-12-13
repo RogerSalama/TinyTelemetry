@@ -1,0 +1,10 @@
+Sent INIT (Device=1, seq=1, unit=fahrenheit)
+Starting test for Device 1 with intervals [5] (10s each)...
+
+--- Device 1: Running 5s interval for 10 seconds ---
+Sent DATA (Device=1, seq=2, interval=5s, batch=['70.0', '70.2'])
+Sent DATA (Device=1, seq=3, interval=5s, batch=['69.8'])
+ Checksum mismatch: received=49, calculated=40
+Test finished. Closing client...
+Client finished.
+Exception in thread 

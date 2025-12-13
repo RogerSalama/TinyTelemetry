@@ -1,0 +1,9 @@
+UDP Server running on port 12002 (max 200 bytes)
+CSV initialized with headers (file: logs/iot_device_data.csv)
+NACK Scheduler Thread started.
+ -> INIT message from Device 1 (unit=fahrenheit)
+ Data saved (ID:1, seq=1)
+ Data saved (ID:1, seq=2)
+ -> DATA received (ID:1, seq=2)
+ Data saved (ID:1, seq=3)
+ -> DATA received (ID:1, seq=3)
