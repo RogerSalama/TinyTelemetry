@@ -13,7 +13,7 @@ sudo tc qdisc del dev lo root 2>/dev/null || true
  SERVER_CSV="logs/iot_device_data.csv"
 
 # Apply 5% packet loss
-LOSS_PERCENT=20
+LOSS_PERCENT=5
 sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%
 echo " Applied ${LOSS_PERCENT}% packet loss on loopback"
 

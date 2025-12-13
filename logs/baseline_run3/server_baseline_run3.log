@@ -23,11 +23,11 @@ NACK Scheduler Thread started.
  -> DATA received (ID:1, seq=10)
  Data saved (ID:1, seq=11)
  -> DATA received (ID:1, seq=11)
+ Data saved (ID:1, seq=12)
+ -> DATA received (ID:1, seq=12)
 Heartbeat Received
  -> HEARTBEAT from Device 1
  Data saved (ID:1, seq=0)
- Data saved (ID:1, seq=12)
- -> DATA received (ID:1, seq=12)
  Data saved (ID:1, seq=13)
  -> DATA received (ID:1, seq=13)
  Data saved (ID:1, seq=14)

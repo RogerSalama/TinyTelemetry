@@ -12,8 +12,8 @@ Sent DATA (ID=1, seq=8, count=10)
 Sent DATA (ID=1, seq=9, count=10)
 Sent DATA (ID=1, seq=10, count=10)
 Sent DATA (ID=1, seq=11, count=10)
-Sent HEARTBEAT for Device 1
 Sent DATA (ID=1, seq=12, count=10)
+Sent HEARTBEAT for Device 1
 Sent DATA (ID=1, seq=13, count=10)
 Sent DATA (ID=1, seq=14, count=10)
 Sent DATA (ID=1, seq=15, count=10)
