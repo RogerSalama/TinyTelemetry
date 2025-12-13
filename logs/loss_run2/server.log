@@ -14,24 +14,27 @@ NACK Scheduler Thread started.
  -> DATA received (ID:1, seq=5)
  Data saved (ID:1, seq=6)
  -> DATA received (ID:1, seq=6)
- [~] Scheduled NACK for ID:1, seq: 7 at T + 0.1s
+ Data saved (ID:1, seq=7)
+ -> DATA received (ID:1, seq=7)
  Data saved (ID:1, seq=8)
- -> DATA received (ID:1, seq=8) with GAP.
- [N] Called send_NACK function for ID:1, seq:7
- [<<] Sent NACK request for ID:1, seq: 7
+ -> DATA received (ID:1, seq=8)
  Data saved (ID:1, seq=9)
  -> DATA received (ID:1, seq=9)
- Data saved (ID:1, seq=10)
- -> DATA received (ID:1, seq=10)
+ [~] Scheduled NACK for ID:1, seq: 10 at T + 0.1s
  Data saved (ID:1, seq=11)
- -> DATA received (ID:1, seq=11)
- Data saved (ID:1, seq=12)
- -> DATA received (ID:1, seq=12)
+ -> DATA received (ID:1, seq=11) with GAP.
+ [N] Called send_NACK function for ID:1, seq:10
+ [<<] Sent NACK request for ID:1, seq: 10
 Heartbeat Received
  -> HEARTBEAT from Device 1
  Data saved (ID:1, seq=0)
+ Data saved (ID:1, seq=12)
+ -> DATA received (ID:1, seq=12)
  Data saved (ID:1, seq=13)
  -> DATA received (ID:1, seq=13)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
  Data saved (ID:1, seq=14)
  -> DATA received (ID:1, seq=14)
 Heartbeat Received

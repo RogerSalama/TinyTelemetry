@@ -18,10 +18,9 @@ Sent HEARTBEAT for Device 1
 Sent DATA (Device=1, seq=12, interval=5s, batch=['70.0', '70.2'])
 Sent DATA (Device=1, seq=13, interval=5s, batch=['69.8'])
 Sent HEARTBEAT for Device 1
-Sent DATA (Device=1, seq=14, interval=5s, batch=['71.0', '71.1', '71.2'])
 
 --- Device 1: Running 10s interval for 10 seconds ---
-Sent DATA (Device=1, seq=15, interval=10s, batch=['68.5', '68.6', '68.7', '68.8'])
+Sent DATA (Device=1, seq=14, interval=10s, batch=['71.0', '71.1', '71.2'])
 Sent HEARTBEAT for Device 1
 Test finished. Closing client...
 Client finished.
