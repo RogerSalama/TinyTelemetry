@@ -28,6 +28,7 @@ delayed_nack_requests = []
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
+
 CSV_FILENAME = os.path.join(LOG_DIR, "iot_device_data.csv")
 CSV_HEADERS = [
     "server_timestamp", "device_id", "unit/batch_count", "sequence_number",
@@ -52,10 +53,13 @@ def init_csv_file():
             writer.writerows(rows)
     print(f"CSV initialized with headers (file: {CSV_FILENAME})")
 
+
 def save_to_csv(data_dict, is_update=False):
     """Save data to CSV; update duplicate_flag if needed."""
     seq = str(data_dict['seq'])
     device_id = str(data_dict['device_id'])
+    
+    # Map message type to string
     msg_type = data_dict['msg_type']
     if msg_type == MSG_INIT:
         msg_type_str = "INIT"
@@ -89,13 +93,17 @@ def save_to_csv(data_dict, is_update=False):
         str(data_dict['packet_size']),
         f"{data_dict['cpu_time_ms']:.4f}"
     ]
+
     try:
         if is_update:
             rows = []
             row_found = False
             with open(CSV_FILENAME, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile)
-                rows.append(next(reader))
+                # Read headers
+                rows.append(next(reader)) 
+                
+                # Read data rows
                 for row in reader:
                     if row[1] == device_id and row[3] == seq:
                         row[9] = '1'
@@ -116,12 +124,20 @@ def save_to_csv(data_dict, is_update=False):
     except Exception as e:
         print(f" Error writing/rewriting to CSV: {e}")
 
-# --- NACK Handling ---
+
+# --- NACK Handling Functions ---
 server_seq = 1
+
 def schedule_NACK(device_id, addr, missing_seq):
     unique_key = (device_id, missing_seq)
     nack_time = time.time() + NACK_DELAY_SECONDS
-    request = {'device_id': device_id, 'missing_seq': missing_seq, 'addr': addr, 'nack_time': nack_time}
+    request = {
+        'device_id': device_id,
+        'missing_seq': missing_seq,
+        'addr': addr,
+        'nack_time': nack_time
+    }
+    
     with nack_lock:
         if not any((req['device_id'], req['missing_seq']) == unique_key for req in delayed_nack_requests):
             delayed_nack_requests.append(request)
@@ -135,12 +151,12 @@ def send_NACK_now(device_id, addr, missing_seq):
     srv_payload_bytes = srv_payload_str.encode('utf-8')
     srv_header = build_checksum_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type=NACK_MSG, payload=srv_payload_bytes)
     server_seq += 1
-    packet = srv_header + srv_payload_bytes
-    try:
-        server_socket.sendto(packet, addr)
-        print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
-    except Exception as e:
-        print(f"Error sending NACK: {e}")
+    
+    srv_payload = str(device_id) +":"+ str(missing_seq)
+    Nack_packet = srv_header + srv_payload.encode('utf-8')
+
+    server_socket.sendto(Nack_packet, addr)
+    print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
 
 def nack_scheduler():
     global delayed_nack_requests
@@ -157,7 +173,20 @@ def nack_scheduler():
                 send_NACK_now(device_id=device_id, addr=req['addr'], missing_seq=missing_seq)
         time.sleep(0.1)
 
-# --- Device State Tracking ---
+
+
+# def send_NACK(device_id, addr, missing_seq):
+#     global server_seq
+#     print(f" [!] Gap Detected! ID:{device_id}, Missing packets: {missing_seq}")
+#     srv_header = build_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type = NACK_MSG)
+#     server_seq+=1
+#     srv_payload = str(device_id) +":"+ str(missing_seq)
+#     Nack_packet=srv_header+srv_payload.encode('utf-8')
+
+#     server_socket.sendto(Nack_packet, addr)
+#     print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
+
+# --- State Tracking Class ---
 class DeviceTracker:
     def __init__(self):
         self.highest_seq = 0
@@ -287,7 +316,6 @@ _reorder = _ReorderBuffer(guard_ms=150, max_buffer_ms=1000)  # ADDED
 def _now_ms():  # ADDED
     return int(time.time() * 1000)
 # --------------------------------------------------------------------
-
 # --- Initialize ---
 init_csv_file()
 trackers = {}
@@ -321,7 +349,7 @@ try:
                 try:
                     enc = payload_bytes[:expected_len]
                     dec = decrypt_bytes(enc, header['device_id'], header['seq'])
-                    fmt = '!' + ('d' * num)     
+                    fmt = '!' + ('d' * num)
                     values = list(struct.unpack(fmt, dec))
                     payload = ",".join(f"{v:.6f}" for v in values)
                 except Exception:
@@ -340,20 +368,17 @@ try:
                 trackers[device_id].highest_seq = seq - 1
             else:
                 print(f" [!] Gap Detected! ID:{device_id}, Missing packets: 1")
-                schedule_NACK(device_id=device_id, addr=addr, missing_seq=1)
-            continue
+
+                schedule_NACK(device_id=device_id,addr=addr,missing_seq=1)
+                continue
 
         tracker = trackers[device_id]
         duplicate_flag = 0
         gap_flag = 0
+        
+        # --- LOGIC START ---
 
-        received_checksum = header['checksum']
-        checksum_valid = (received_checksum == calculated_checksum)
-        if not checksum_valid:
-            corruption_count += 1
-            print(f"⚠️ Checksum mismatch: received={received_checksum}, calculated={calculated_checksum}")
-            continue
-
+        
         diff = seq - tracker.highest_seq
         if seq == 0:
             print("Heartbeat Received")
@@ -383,11 +408,6 @@ try:
 
         end_cpu = time.perf_counter()
         cpu_time_ms = (end_cpu - start_cpu) * 1000
-
-        # ADDED: accumulate metrics
-        metrics_packets += 1
-        metrics_bytes += len(data)
-        metrics_cpu_ms += cpu_time_ms
 
         csv_data = {
             'server_timestamp': f" {server_receive_time}",
@@ -427,14 +447,6 @@ try:
             save_to_csv(csv_data)
         else:
             print("Unknown message type.")
-
-        # -------------------- ADDED: push to reorder buffer and flush --------------------
-        ts_key_ms = int(header['timestamp'] * 1000 + header['milliseconds'])
-        pkt = _Pkt(ts_key_ms=ts_key_ms, csv_dict=csv_data, dup=duplicate_flag, gap=gap_flag)
-        _reorder.push(pkt, _now_ms())
-        flushed = _reorder.flush_ready(_now_ms())
-        _save_reordered(flushed)
-        # -------------------------------------------------------------------------------
 
 except KeyboardInterrupt:
     print("\nServer interrupted. Generating summary...")
