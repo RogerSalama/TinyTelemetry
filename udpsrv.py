@@ -1,3 +1,4 @@
+
 import socket
 import time
 import csv
@@ -19,7 +20,6 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('', SERVER_PORT))
 print(f"UDP Server running on port {SERVER_PORT} (max {MAX_BYTES} bytes)")
-
 NACK_DELAY_SECONDS = 0.1
 nack_lock = threading.Lock()
 delayed_nack_requests = []
@@ -27,8 +27,6 @@ delayed_nack_requests = []
 # --- CSV Configuration ---
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
-
-
 CSV_FILENAME = os.path.join(LOG_DIR, "iot_device_data.csv")
 CSV_HEADERS = [
     "server_timestamp", "device_id", "unit/batch_count", "sequence_number",
@@ -36,7 +34,6 @@ CSV_HEADERS = [
     "client_address", "delay_seconds", "duplicate_flag", "gap_flag",
     "packet_size", "cpu_time_ms"
 ]
-
 def init_csv_file():
     """Ensure CSV always has headers at the top, even if file exists."""
     rows = []
@@ -44,21 +41,18 @@ def init_csv_file():
         with open(CSV_FILENAME, 'r', newline='') as csvfile:
             reader = csv.reader(csvfile)
             rows = list(reader)
-    with open(CSV_FILENAME, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(CSV_HEADERS)
-        if rows:
-            if rows[0] == CSV_HEADERS:
-                rows = rows[1:]
-            writer.writerows(rows)
+        with open(CSV_FILENAME, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(CSV_HEADERS)
+            if rows:
+                if rows[0] == CSV_HEADERS:
+                    rows = rows[1:]
+                writer.writerows(rows)
     print(f"CSV initialized with headers (file: {CSV_FILENAME})")
-
-
 def save_to_csv(data_dict, is_update=False):
     """Save data to CSV; update duplicate_flag if needed."""
     seq = str(data_dict['seq'])
     device_id = str(data_dict['device_id'])
-    
     # Map message type to string
     msg_type = data_dict['msg_type']
     if msg_type == MSG_INIT:
@@ -69,7 +63,6 @@ def save_to_csv(data_dict, is_update=False):
         msg_type_str = "HEARTBEAT"
     else:
         msg_type_str = f"UNKNOWN({msg_type})"
-
     # --- Base64 encode payload ---
     payload = data_dict['payload']
     if isinstance(payload, str):
@@ -77,7 +70,6 @@ def save_to_csv(data_dict, is_update=False):
     else:
         payload_bytes = payload
     payload_b64 = base64.b64encode(payload_bytes).decode('ascii')
-
     new_row = [
         data_dict['server_timestamp'],
         device_id,
@@ -93,7 +85,6 @@ def save_to_csv(data_dict, is_update=False):
         str(data_dict['packet_size']),
         f"{data_dict['cpu_time_ms']:.4f}"
     ]
-
     try:
         if is_update:
             rows = []
@@ -101,8 +92,7 @@ def save_to_csv(data_dict, is_update=False):
             with open(CSV_FILENAME, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile)
                 # Read headers
-                rows.append(next(reader)) 
-                
+                rows.append(next(reader))
                 # Read data rows
                 for row in reader:
                     if row[1] == device_id and row[3] == seq:
@@ -124,10 +114,8 @@ def save_to_csv(data_dict, is_update=False):
     except Exception as e:
         print(f" Error writing/rewriting to CSV: {e}")
 
-
 # --- NACK Handling Functions ---
 server_seq = 1
-
 def schedule_NACK(device_id, addr, missing_seq):
     unique_key = (device_id, missing_seq)
     nack_time = time.time() + NACK_DELAY_SECONDS
@@ -137,27 +125,22 @@ def schedule_NACK(device_id, addr, missing_seq):
         'addr': addr,
         'nack_time': nack_time
     }
-    
     with nack_lock:
         if not any((req['device_id'], req['missing_seq']) == unique_key for req in delayed_nack_requests):
             delayed_nack_requests.append(request)
             print(f" [~] Scheduled NACK for ID:{device_id}, seq: {missing_seq} at T + {NACK_DELAY_SECONDS}s")
         else:
             print(f" [X] Ignoring duplicate schedule request for ID:{device_id}, seq: {missing_seq}")
-
 def send_NACK_now(device_id, addr, missing_seq):
     global server_seq
     srv_payload_str = f"{device_id}:{missing_seq}"
     srv_payload_bytes = srv_payload_str.encode('utf-8')
     srv_header = build_checksum_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type=NACK_MSG, payload=srv_payload_bytes)
     server_seq += 1
-    
-    srv_payload = str(device_id) +":"+ str(missing_seq)
+    srv_payload = str(device_id) + ":" + str(missing_seq)
     Nack_packet = srv_header + srv_payload.encode('utf-8')
-
     server_socket.sendto(Nack_packet, addr)
     print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
-
 def nack_scheduler():
     global delayed_nack_requests
     print("NACK Scheduler Thread started.")
@@ -173,34 +156,19 @@ def nack_scheduler():
                 send_NACK_now(device_id=device_id, addr=req['addr'], missing_seq=missing_seq)
         time.sleep(0.1)
 
-
-
-# def send_NACK(device_id, addr, missing_seq):
-#     global server_seq
-#     print(f" [!] Gap Detected! ID:{device_id}, Missing packets: {missing_seq}")
-#     srv_header = build_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type = NACK_MSG)
-#     server_seq+=1
-#     srv_payload = str(device_id) +":"+ str(missing_seq)
-#     Nack_packet=srv_header+srv_payload.encode('utf-8')
-
-#     server_socket.sendto(Nack_packet, addr)
-#     print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
-
 # --- State Tracking Class ---
 class DeviceTracker:
     def __init__(self):
         self.highest_seq = 0
         self.missing_set = set()
 
-# --------------------------------------------------------------------
-#                 ADDED: timestamp reordering + metrics (CSV)
-# --------------------------------------------------------------------
+# ----------------------------------------------
+# ADDED: timestamp reordering + metrics (CSV)
+# ----------------------------------------------
 import heapq  # ADDED
-
 # ADDED: second CSV in timestamp order (analysis only; original CSV unchanged)
 REORDER_CSV = os.path.join(LOG_DIR, "iot_device_data_reordered.csv")
 _REORDER_INIT = False
-
 def _init_reorder_csv():  # ADDED
     """Create (or reset) the reordered CSV with the same headers as the main CSV."""
     global _REORDER_INIT
@@ -210,7 +178,6 @@ def _init_reorder_csv():  # ADDED
         writer = csv.writer(f)
         writer.writerow(CSV_HEADERS)  # same columns for easy comparison
     _REORDER_INIT = True
-
 class _Pkt:  # ADDED
     __slots__ = ("ts_key_ms", "csv_dict", "dup", "gap")
     def __init__(self, ts_key_ms, csv_dict, dup, gap):
@@ -221,7 +188,6 @@ class _Pkt:  # ADDED
     def __lt__(self, other):
         # order by device timestamp key in milliseconds
         return self.ts_key_ms < other.ts_key_ms
-
 class _ReorderBuffer:  # ADDED
     """
     Small jitter-guarded buffer keyed by sensor/device timestamp (ms).
@@ -230,14 +196,12 @@ class _ReorderBuffer:  # ADDED
     def __init__(self, guard_ms=150, max_buffer_ms=1000):
         self.guard_ms = guard_ms
         self.max_buffer_ms = max_buffer_ms
-        self.heap = []          # holds (pkt, arrival_ms)
+        self.heap = []  # holds (pkt, arrival_ms)
         self.max_seen_ts = 0
-
     def push(self, pkt, arrival_ms: int):
         if pkt.ts_key_ms > self.max_seen_ts:
             self.max_seen_ts = pkt.ts_key_ms
         heapq.heappush(self.heap, (pkt, arrival_ms))
-
     def flush_ready(self, now_ms: int):
         """
         Flush packets whose sensor timestamp is <= watermark
@@ -252,7 +216,6 @@ class _ReorderBuffer:  # ADDED
             else:
                 break
         return ready
-
     def flush_all(self):
         """
         Flush all remaining packets in timestamp order
@@ -261,7 +224,6 @@ class _ReorderBuffer:  # ADDED
         out = [heapq.heappop(self.heap)[0] for _ in range(len(self.heap))]
         out.sort(key=lambda p: p.ts_key_ms)
         return out
-
 def _save_reordered(pkt_list):  # ADDED
     """Append flushed packets to the reordered CSV with the same columns."""
     if not pkt_list:
@@ -281,7 +243,7 @@ def _save_reordered(pkt_list):  # ADDED
             else:
                 msg_type_str = f"UNKNOWN({msg_type})"
             payload = d['payload']
-            # Original CSV already base64 encodes the payload in save_to_csv(),
+            # Original CSV already base64 encodes the payload in save_to_csv(), 
             # but here we write a comparable row for analysis.
             if isinstance(payload, str):
                 payload_bytes = payload.encode('utf-8', errors='ignore')
@@ -310,19 +272,20 @@ metrics_bytes = 0
 metrics_cpu_ms = 0.0
 metrics_dup_total = 0
 metrics_gap_total = 0
-
 _reorder = _ReorderBuffer(guard_ms=150, max_buffer_ms=1000)  # ADDED
-
 def _now_ms():  # ADDED
     return int(time.time() * 1000)
-# --------------------------------------------------------------------
+
+# PATCH: reporting interval tracking (per device)
+last_data_ts_ms = {}        # device_id -> last valid DATA device timestamp in ms
+report_intervals_ms = []    # collected intervals across the run
+
 # --- Initialize ---
 init_csv_file()
 trackers = {}
 received_count = 0
 duplicate_count = 0
 corruption_count = 0
-
 threading.Thread(target=nack_scheduler, daemon=True).start()
 
 # --- Main Server Loop ---
@@ -336,7 +299,6 @@ try:
         except ValueError as e:
             print("Header error:", e)
             continue
-
         payload_bytes = data[HEADER_SIZE:]
         BASE_HEADER_SIZE = 9
         base_header_bytes = data[:BASE_HEADER_SIZE]
@@ -368,17 +330,14 @@ try:
                 trackers[device_id].highest_seq = seq - 1
             else:
                 print(f" [!] Gap Detected! ID:{device_id}, Missing packets: 1")
-
                 schedule_NACK(device_id=device_id,addr=addr,missing_seq=1)
-                continue
+            continue
 
         tracker = trackers[device_id]
         duplicate_flag = 0
         gap_flag = 0
-        
-        # --- LOGIC START ---
 
-        
+        # --- LOGIC START ---
         diff = seq - tracker.highest_seq
         if seq == 0:
             print("Heartbeat Received")
@@ -405,7 +364,6 @@ try:
 
         delay = round(time.time() - header['timestamp'], 3)
         received_count += 1
-
         end_cpu = time.perf_counter()
         cpu_time_ms = (end_cpu - start_cpu) * 1000
 
@@ -425,11 +383,34 @@ try:
             'cpu_time_ms': cpu_time_ms
         }
 
+        # PATCH: push into reorder buffer for analysis (optional, unchanged behaviour)
+        try:
+            ts_key_ms = int(header['timestamp'] * 1000) + int(header['milliseconds'])
+        except Exception:
+            ts_key_ms = _now_ms()
+        _reorder.push(_Pkt(ts_key_ms, csv_data, duplicate_flag == 1, gap_flag == 1), _now_ms())
+        ready_pkts = _reorder.flush_ready(_now_ms())
+        _save_reordered(ready_pkts)
+
         if header['msg_type'] == MSG_DATA:
             if duplicate_flag:
+                # Duplicate: mark row, but DO NOT count toward per-report metrics
                 save_to_csv(csv_data, True)
             else:
+                # Unique DATA reading: count toward metrics
                 save_to_csv(csv_data)
+                metrics_packets += 1
+                metrics_bytes += len(data)          # total bytes on the wire for this reading
+                metrics_cpu_ms += cpu_time_ms       # processing time for this reading
+
+                # PATCH: compute per-device reporting interval (device timestamp basis)
+                # If you prefer server-receive time intervals, set ts_ms = _now_ms()
+                ts_ms = int(header['timestamp'] * 1000) + int(header['milliseconds'])
+                prev = last_data_ts_ms.get(device_id)
+                if prev is not None and ts_ms > prev:
+                    report_intervals_ms.append(ts_ms - prev)
+                last_data_ts_ms[device_id] = ts_ms
+
             if gap_flag:
                 print(f" -> DATA received (ID:{device_id}, seq={seq}) with GAP.")
             elif duplicate_flag:
@@ -450,7 +431,6 @@ try:
 
 except KeyboardInterrupt:
     print("\nServer interrupted. Generating summary...")
-
     # ADDED: final flush of reorder buffer and save
     remaining = _reorder.flush_all()
     _save_reordered(remaining)
@@ -458,12 +438,22 @@ except KeyboardInterrupt:
     total_expected = sum(t.highest_seq for t in trackers.values())
     missing_count = total_expected - received_count
     delivery_rate = (received_count / total_expected) * 100 if total_expected else 0
-
     print("\n=== Baseline Test Summary ===")
     print(f"Total received: {received_count}")
     print(f"Missing packets: {missing_count}")
     print(f"Duplicate packets: {duplicate_count}")
     print(f"Delivery rate: {delivery_rate:.2f}%")
+
+    # PATCH: compute median reporting interval (ms) for metrics.csv
+    if report_intervals_ms:
+        report_intervals_ms.sort()
+        mid = len(report_intervals_ms) // 2
+        if len(report_intervals_ms) % 2 == 1:
+            reporting_interval_ms = report_intervals_ms[mid]
+        else:
+            reporting_interval_ms = (report_intervals_ms[mid-1] + report_intervals_ms[mid]) / 2.0
+    else:
+        reporting_interval_ms = 0.0
 
     # ADDED: write metrics.csv (append a single summary row per run)
     MET_CSV = os.path.join(LOG_DIR, "metrics.csv")
@@ -473,7 +463,8 @@ except KeyboardInterrupt:
         (metrics_dup_total / metrics_packets) if metrics_packets else 0.0,
         int(metrics_gap_total),
         (metrics_cpu_ms / metrics_packets) if metrics_packets else 0.0,
-        time.strftime('%Y-%m-%d %H:%M:%S')  # finished_at
+        reporting_interval_ms,  # PATCH: new column
+        time.strftime('%Y-%m-%d %H:%M:%S') # finished_at
     ]
     try:
         need_header = not os.path.exists(MET_CSV)
@@ -485,6 +476,7 @@ except KeyboardInterrupt:
                             "duplicate_rate",
                             "sequence_gap_count",
                             "cpu_ms_per_report",
+                            "reporting_interval_ms",  # PATCH: new header
                             "finished_at"])
             w.writerow(metrics_row)
         print(f"\nMetrics appended to: {MET_CSV}")
