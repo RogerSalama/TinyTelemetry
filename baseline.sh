@@ -46,7 +46,7 @@ for run in {1..5}; do
     echo "=== Baseline run $run ==="
 
     # Create per-run directory
-    RUN_DIR="logs/run${run}"
+    RUN_DIR="logs/baseline_run${run}"
     mkdir -p "$RUN_DIR"
     chmod 777 "$RUN_DIR"
 

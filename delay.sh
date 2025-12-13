@@ -34,20 +34,31 @@ DEVICE_ID=1
 echo " Running delay+jitter test for Device $DEVICE_ID (duration=${DURATION}s, intervals=${INTERVALS})"
 
 for i in {1..5}; do
-    echo "=== Run $i ==="
+    echo "=== Delay test Run $i ==="
+
+    RUN_DIR="logs/delay_run${i}"
+    mkdir -p "$RUN_DIR"
+    chmod 777 "$RUN_DIR"
+
+    SERVER_CSV="logs/iot_device_data.csv"
+    CSV_FILE="$RUN_DIR/delay_run${i}.csv"
+
+    # Reset CSV
+    rm -f "$SERVER_CSV"
 
     # Start PCAP
-    sudo tcpdump -i lo udp port 12002 -w logs/delay_run${i}.pcap &
+    PCAP_FILE="$RUN_DIR/delay_run${i}.pcap"
+    sudo tcpdump -i lo udp port 12002 -w "$PCAP_FILE" &>/dev/null &
     PCAP_PID=$!
 
     # Start server
-    SERVER_LOG=logs/server_delay_run${i}.log
+    SERVER_LOG="$RUN_DIR/server.log"
     $PYTHON udpsrv.py > "$SERVER_LOG" 2>&1 &
     SERVER_PID=$!
     sleep 1
 
     # Run client
-    CLIENT_LOG=logs/client_delay_run${i}.log
+     CLIENT_LOG="$RUN_DIR/client.log"
     $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1
 
     # Stop server & PCAP
@@ -55,39 +66,48 @@ for i in {1..5}; do
     kill $PCAP_PID
     echo "PCAP saved: logs/delay_run${i}.pcap"
 
-    # Move CSV
-    CSV_FILE=logs/delay_run${i}.csv
-    if [ -f logs/iot_device_data.csv ]; then
-        mv logs/iot_device_data.csv "$CSV_FILE"
-    elif [ -f iot_device_data.csv ]; then
-        mv iot_device_data.csv "$CSV_FILE"
+    # NetEm log
+    echo "sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms" \
+        > "$RUN_DIR/netem.txt"
+
+    # CSV snapshot
+    if [ -f "$SERVER_CSV" ]; then
+        cp "$SERVER_CSV" "$RUN_DIR/delay_run${i}.csv"
+        echo "CSV saved: $RUN_DIR/delay_run${i}.csv"
     else
-        echo " CSV not found for run $i"
-        continue
+        echo "CSV not found for run $i"
     fi
-    echo "CSV saved: $CSV_FILE"
 
     # ---- Acceptance criteria ----
     echo " Checking acceptance criteria for run $i"
 
-    awk -F, -v intervals="${INTERVALS}" '
+    awk -F, -v intervals="$INTERVALS" -v server_log="$SERVER_LOG" '
     BEGIN {
         split(intervals,intv_arr,",")
-        crash=0
-        overrun=0
+        in_order=1
     }
-    FNR==1 {next} # skip header if any
+    FNR==1 {next} # skip header
     {
-        ts=$6
+        ts=$1
         if(last_ts!="" && ts<last_ts) in_order=0
         last_ts=ts
     }
     END {
-        order_status=(in_order==0 ? " timestamps out of order" : " timestamps correctly ordered")
-        crash_status=(system("grep -i ERROR '$SERVER_LOG' >/dev/null 2>&1") ? " server crash detected" : " no server crash")
+        if(in_order==0)
+            order_status="timestamps out of order"
+        else
+            order_status="timestamps correctly ordered"
+
+        # Check for server crash
+        crash_status="no server crash"
+        if(system("grep -i ERROR " server_log " >/dev/null 2>&1") == 0)
+            crash_status="server crash detected"
+
         printf "%s, %s\n", order_status, crash_status
     }
     ' "$CSV_FILE"
+
+
 
 done
 

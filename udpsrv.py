@@ -6,20 +6,17 @@ import sys
 from datetime import datetime
 import struct
 import threading
-from protocol import *
-import base64
+from protocol import MAX_BYTES, HEADER_SIZE, parse_header, MSG_INIT, MSG_DATA, HEART_BEAT, code_to_unit, build_header, NACK_MSG, decrypt_bytes
 
 # --- Real-time logging ---
 sys.stdout.reconfigure(line_buffering=True)
-SERVER_ID = 1
-
+SERVER_ID=1
 # --- Server setup ---
 SERVER_PORT = 12002
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('', SERVER_PORT))
 print(f"UDP Server running on port {SERVER_PORT} (max {MAX_BYTES} bytes)")
-
 NACK_DELAY_SECONDS = 0.1
 nack_lock = threading.Lock()
 delayed_nack_requests = []
@@ -27,54 +24,54 @@ delayed_nack_requests = []
 # --- CSV Configuration ---
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
+
 CSV_FILENAME = os.path.join(LOG_DIR, "iot_device_data.csv")
 CSV_HEADERS = [
     "server_timestamp", "device_id", "unit/batch_count", "sequence_number",
     "device_timestamp", "message_type", "payload",
-    "client_address", "delay_seconds", "duplicate_flag", "gap_flag",
+    "client_address", "delay_seconds", "duplicate_flag", "gap_flag", 
     "packet_size", "cpu_time_ms"
-]
-
+]    
 def init_csv_file():
-    """Ensure CSV always has headers at the top, even if file exists."""
+    """Ensure CSV always has headers at the top, even if file already exists."""
     rows = []
+
+    # If the file exists, read all existing rows
     if os.path.exists(CSV_FILENAME):
         with open(CSV_FILENAME, 'r', newline='') as csvfile:
             reader = csv.reader(csvfile)
-            rows = list(reader)
+            rows = list(reader)  # read all rows
+
+    # Always overwrite the file with header + existing rows
     with open(CSV_FILENAME, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(CSV_HEADERS)
+        writer.writerow(CSV_HEADERS)  # write header first
         if rows:
+            # Append the old data, but skip the old header if it exists
             if rows[0] == CSV_HEADERS:
-                rows = rows[1:]
+                rows = rows[1:]  # remove old header
             writer.writerows(rows)
+
     print(f"CSV initialized with headers (file: {CSV_FILENAME})")
 
 
 def save_to_csv(data_dict, is_update=False):
-    """Save data to CSV; update duplicate_flag if needed."""
+    """
+    Saves data to CSV. If is_update is True, it reads the entire CSV, finds 
+    the existing row matching the device_id and seq_num, updates the duplicate_flag, 
+    and rewrites the file. Otherwise, it appends a new row.
+    """
     seq = str(data_dict['seq'])
     device_id = str(data_dict['device_id'])
-
+    
+    # Map message type to string
     msg_type = data_dict['msg_type']
-    if msg_type == MSG_INIT:
-        msg_type_str = "INIT"
-    elif msg_type == MSG_DATA:
-        msg_type_str = "DATA"
-    elif msg_type == HEART_BEAT:
-        msg_type_str = "HEARTBEAT"
-    else:
-        msg_type_str = f"UNKNOWN({msg_type})"
+    if msg_type == MSG_INIT: msg_type_str = "INIT"
+    elif msg_type == MSG_DATA: msg_type_str = "DATA"
+    elif msg_type == HEART_BEAT: msg_type_str = "HEARTBEAT"
+    else: msg_type_str = f"UNKNOWN({msg_type})"
 
-    # --- Base64 encode payload ---
-    payload = data_dict['payload']
-    if isinstance(payload, str):
-        payload_bytes = payload.encode('utf-8', errors='ignore')
-    else:
-        payload_bytes = payload
-    payload_b64 = base64.b64encode(payload_bytes).decode('ascii')
-
+    # Format the data row
     new_row = [
         data_dict['server_timestamp'],
         device_id,
@@ -82,7 +79,7 @@ def save_to_csv(data_dict, is_update=False):
         seq,
         data_dict['timestamp'],
         msg_type_str,
-        payload_b64,
+        data_dict['payload'],
         data_dict['client_address'],
         str(data_dict['delay_seconds']),
         str(data_dict['duplicate_flag']),
@@ -93,98 +90,149 @@ def save_to_csv(data_dict, is_update=False):
 
     try:
         if is_update:
+            # --- REWRITE LOGIC FOR DUPLICATES ---
             rows = []
             row_found = False
             with open(CSV_FILENAME, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile)
+                # Read headers
                 rows.append(next(reader)) 
+                
+                # Read data rows
                 for row in reader:
+                    # Check if this row matches the target packet (device_id is index 1, seq is index 3)
                     if row[1] == device_id and row[3] == seq:
-                        row[9] = '1'
+                        row[9] = '1'  # Set duplicate_flag (index 9) to '1'
                         print(f" [!] Updated CSV row for duplicate packet (Device:{device_id}, Seq:{seq})")
                         row_found = True
                     rows.append(row)
+            
             if row_found:
+                # Rewrite the entire file with the updated row
                 with open(CSV_FILENAME, 'w', newline='') as csvfile:
                     writer = csv.writer(csvfile)
                     writer.writerows(rows)
             else:
-                print(f" [!] Error: Duplicate packet (ID:{device_id}, seq:{seq}) was detected but not found in CSV.")
+                 print(f" [!] Error: Duplicate packet (ID:{device_id}, seq:{seq}) was detected but its original row was not found in CSV.")
+
         else:
+            # --- APPEND LOGIC for new packets ---
             with open(CSV_FILENAME, 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(new_row)
+            # Add to the global dictionary to track it was logged
             print(f" Data saved (ID:{device_id}, seq={seq})")
+            
     except Exception as e:
         print(f" Error writing/rewriting to CSV: {e}")
 
 
-# --- NACK Handling ---
+# --- NACK Handling Functions ---
 server_seq = 1
-
 def schedule_NACK(device_id, addr, missing_seq):
+    """Schedules a NACK request to be sent after NACK_DELAY_SECONDS."""
     unique_key = (device_id, missing_seq)
     nack_time = time.time() + NACK_DELAY_SECONDS
-    request = {'device_id': device_id, 'missing_seq': missing_seq, 'addr': addr, 'nack_time': nack_time}
-
+    request = {
+        'device_id': device_id,
+        'missing_seq': missing_seq,
+        'addr': addr,
+        'nack_time': nack_time
+    }
+    
     with nack_lock:
-        if not any((req['device_id'], req['missing_seq']) == unique_key for req in delayed_nack_requests):
+        is_already_scheduled = any(
+            (req['device_id'], req['missing_seq']) == unique_key 
+            for req in delayed_nack_requests
+        )
+        
+        if not is_already_scheduled:
             delayed_nack_requests.append(request)
             print(f" [~] Scheduled NACK for ID:{device_id}, seq: {missing_seq} at T + {NACK_DELAY_SECONDS}s")
         else:
             print(f" [X] Ignoring duplicate schedule request for ID:{device_id}, seq: {missing_seq}")
-
+    
 
 def send_NACK_now(device_id, addr, missing_seq):
+    """Builds and sends the NACK packet immediately (used by scheduler)."""
     global server_seq
-    srv_payload_str = f"{device_id}:{missing_seq}"
-    srv_payload_bytes = srv_payload_str.encode('utf-8')
-    srv_header = build_checksum_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type=NACK_MSG, payload=srv_payload_bytes)
+    
+    srv_header = build_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type = NACK_MSG)
     server_seq += 1
-    Nack_packet = srv_header + srv_payload_bytes
+    
+    srv_payload = str(device_id) +":"+ str(missing_seq)
+    Nack_packet = srv_header + srv_payload.encode('utf-8')
+
     server_socket.sendto(Nack_packet, addr)
     print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
 
-
 def nack_scheduler():
+    """Thread function to process the delayed NACK requests."""
     global delayed_nack_requests
     print("NACK Scheduler Thread started.")
+    
+    # Use running flag for graceful shutdown if needed, otherwise loop forever
     while True:
         now = time.time()
+        requests_to_send = []
+        
         with nack_lock:
+            # Find all requests that are due now or in the past
             requests_to_send = [req for req in delayed_nack_requests if req['nack_time'] <= now]
+            # Keep only the requests that are NOT due yet
             delayed_nack_requests = [req for req in delayed_nack_requests if req['nack_time'] > now]
+            
         for req in requests_to_send:
             device_id = req['device_id']
             missing_seq = req['missing_seq']
+            
+            # CRITICAL CHECK: Check if the missing packet has been recovered while waiting
             if (device_id in trackers and missing_seq in trackers[device_id].missing_set) or (missing_seq == 1 and device_id not in trackers):
+                print(f" [N] Called send_NACK function for ID:{device_id}, seq:{missing_seq}")
                 send_NACK_now(device_id=device_id, addr=req['addr'], missing_seq=missing_seq)
+
+            else:
+                # Packet was already recovered (Case 3a) or device disconnected. Do nothing.
+                pass
+        
+        # Sleep for a short interval to reduce CPU load
         time.sleep(0.1)
 
 
-# --- Device State Tracking ---
+
+# def send_NACK(device_id, addr, missing_seq):
+#     global server_seq
+#     print(f" [!] Gap Detected! ID:{device_id}, Missing packets: {missing_seq}")
+#     srv_header = build_header(device_id=SERVER_ID, batch_count=1, seq_num=server_seq, msg_type = NACK_MSG)
+#     server_seq+=1
+#     srv_payload = str(device_id) +":"+ str(missing_seq)
+#     Nack_packet=srv_header+srv_payload.encode('utf-8')
+
+#     server_socket.sendto(Nack_packet, addr)
+#     print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_seq}")
+
+# --- State Tracking Class ---
 class DeviceTracker:
     def __init__(self):
         self.highest_seq = 0
         self.missing_set = set()
 
-
 # --- Initialize ---
 init_csv_file()
-trackers = {}
+trackers = {} 
 received_count = 0
 duplicate_count = 0
-corruption_count = 0
+
 
 threading.Thread(target=nack_scheduler, daemon=True).start()
 
-
-# --- Main Server Loop ---
 try:
     while True:
         data, addr = server_socket.recvfrom(MAX_BYTES)
+        
         start_cpu = time.perf_counter()
         server_receive_time = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+
         try:
             header = parse_header(data)
         except ValueError as e:
@@ -192,80 +240,111 @@ try:
             continue
 
         payload_bytes = data[HEADER_SIZE:]
-        BASE_HEADER_SIZE = 9
-        base_header_bytes = data[:BASE_HEADER_SIZE]
-        calculated_checksum = calculate_expected_checksum(base_header_bytes, payload_bytes)
 
+        # For DATA messages, payload is binary doubles (8 bytes each)
         if header['msg_type'] == MSG_DATA:
             num = header['batch_count']
             expected_len = num * 8
             if len(payload_bytes) >= expected_len and num > 0:
                 try:
+                    # Decrypt first (XOR stream). This preserves the exact
+                    # binary layout so struct.unpack works as before.
                     enc = payload_bytes[:expected_len]
                     dec = decrypt_bytes(enc, header['device_id'], header['seq'])
                     fmt = '!' + ('d' * num)
                     values = list(struct.unpack(fmt, dec))
+                    # Format values to fixed decimal string for CSV/logging
                     payload = ",".join(f"{v:.6f}" for v in values)
-                except Exception:
-                    payload = payload_bytes
+                except Exception as e:
+                    payload = payload_bytes.decode('utf-8', errors='ignore')
             else:
-                payload = payload_bytes
+                # not enough bytes — fallback to text
+                payload = payload_bytes.decode('utf-8', errors='ignore')
         else:
+            # INIT or HEARTBEAT: treat payload as text (usually empty)
             payload = payload_bytes.decode('utf-8', errors='ignore')
-
+        
         device_id = header['device_id']
-        seq = header['seq']
-
-        if device_id not in trackers:
-            if header['msg_type'] == MSG_INIT:
+        seq = header['seq']  ##1
+        
+        if (device_id not in trackers):
+            if header['msg_type']==MSG_INIT:
                 trackers[device_id] = DeviceTracker()
-                trackers[device_id].highest_seq = seq - 1
+                trackers[device_id].highest_seq = seq - 1 ##0
             else:
                 print(f" [!] Gap Detected! ID:{device_id}, Missing packets: 1")
-                schedule_NACK(device_id=device_id, addr=addr, missing_seq=1)
+
+                schedule_NACK(device_id=device_id,addr=addr,missing_seq=1)
                 continue
 
+
         tracker = trackers[device_id]
+
         duplicate_flag = 0
         gap_flag = 0
-        received_checksum = header['checksum']
-        checksum_valid = (received_checksum == calculated_checksum)
-        if not checksum_valid:
-            corruption_count += 1
-            print(f"⚠️ Checksum mismatch: received={received_checksum}, calculated={calculated_checksum}")
-            continue
+        
+        # --- LOGIC START ---
 
+        
         diff = seq - tracker.highest_seq
-        if seq == 0:
+        if seq==0 :
+            # Special case for seq=0 (heartbeat)
             print("Heartbeat Received")
+        
         elif diff == 1:
+            # CASE 1: In-order packet
             tracker.highest_seq = seq
+            # print(f" -> Packet {seq} received in order.")
+
         elif diff > 1:
+            # CASE 2: Gap Detected
             gap_flag = 1
+            
+            # Identify missing packets
+            missing_list = []
             for missing_seq in range(tracker.highest_seq + 1, seq):
-                tracker.missing_set.add(missing_seq)
-                schedule_NACK(device_id=device_id, addr=addr, missing_seq=missing_seq)
+                tracker.missing_set.add(missing_seq)    
+                schedule_NACK(device_id=device_id,addr=addr,missing_seq=missing_seq)
+                #missing_list.append(str(missing_seq))
+            
+            
+            # --- SEND NACK TO CLIENT ---
+            # if missing_list:
+            #     nack_msg = f"NACK:{device_id}:" + ",".join(missing_list)
+            #     server_socket.sendto(nack_msg.encode('utf-8'), addr)
+            #     print(f" [<<] Sent NACK request for ID:{device_id}, seq: {missing_list}")
+
             tracker.highest_seq = seq
+
         elif diff <= 0:
+            # CASE 3: Out-of-Order or Duplicate
             if seq in tracker.missing_set:
+                # Subcase 3a: Recovered Packet (Was missing)
                 tracker.missing_set.remove(seq)
                 print(f" [+] Recovered packet ID:{device_id}, seq:{seq} (was missing).")
             else:
+                # Subcase 3b: True Duplicate -> IGNORE LOGIC
                 duplicate_flag = 1
                 duplicate_count += 1
-                received_count -= 1
+                received_count-=1
+
                 print(f" [D] Duplicate detected: ID:{device_id}, seq:{seq}. Content ignored.")
+                # [cite_start]We still log it to CSV to verify duplication behavior [cite: 46]
+                # But you can choose to discard the payload variable if you want "total ignore"
+
+        # --- LOGIC END ---
 
         delay = round(time.time() - header['timestamp'], 3)
         received_count += 1
+        
         end_cpu = time.perf_counter()
         cpu_time_ms = (end_cpu - start_cpu) * 1000
 
         csv_data = {
             'server_timestamp': f" {server_receive_time}",
-            'device_id': device_id,
+            'device_id': header['device_id'],
             'batch_count': header['batch_count'],
-            'seq': seq,
+            'seq': header['seq'],
             'timestamp': f" {time.strftime('%d/%m/%Y %H:%M:%S', time.localtime(header['timestamp']))}.{header['milliseconds']:03d}",
             'msg_type': header['msg_type'],
             'payload': payload,
@@ -277,23 +356,28 @@ try:
             'cpu_time_ms': cpu_time_ms
         }
 
+        # Save to CSV (even duplicates, so we can prove they were detected)
         if header['msg_type'] == MSG_DATA:
             if duplicate_flag:
-                save_to_csv(csv_data, True)
+                save_to_csv(csv_data,True)
             else:
                 save_to_csv(csv_data)
+                
             if gap_flag:
                 print(f" -> DATA received (ID:{device_id}, seq={seq}) with GAP.")
             elif duplicate_flag:
                 print(f" -> DATA received (ID:{device_id}, seq={seq}) DUPLICATE (Ignored).")
             else:
                 print(f" -> DATA received (ID:{device_id}, seq={seq})")
+                 
         elif header['msg_type'] == MSG_INIT:
             unit = code_to_unit(header['batch_count'])
             print(f" -> INIT message from Device {device_id} (unit={unit})")
             save_to_csv(csv_data)
+            # Reset tracker
             trackers[device_id].highest_seq = seq
             trackers[device_id].missing_set.clear()
+            
         elif header['msg_type'] == HEART_BEAT:
             print(f" -> HEARTBEAT from Device {device_id}")
             save_to_csv(csv_data)
@@ -302,9 +386,14 @@ try:
 
 except KeyboardInterrupt:
     print("\nServer interrupted. Generating summary...")
-    total_expected = sum(t.highest_seq for t in trackers.values())
+    total_expected = 0
+    if tracker:
+        for device in tracker:
+            total_expected+=device.highest_seq
+
     missing_count = total_expected - received_count
     delivery_rate = (received_count / total_expected) * 100 if total_expected else 0
+
     print("\n=== Baseline Test Summary ===")
     print(f"Total received: {received_count}")
     print(f"Missing packets: {missing_count}")

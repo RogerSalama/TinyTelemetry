@@ -10,6 +10,8 @@ mkdir -p logs
 # Reset network
 sudo tc qdisc del dev lo root 2>/dev/null || true
 
+ SERVER_CSV="logs/iot_device_data.csv"
+
 # Apply 5% packet loss
 LOSS_PERCENT=5
 sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%
@@ -41,11 +43,25 @@ IFS=',' read -r -a INTERVAL_ARRAY <<< "$INTERVALS"
 DEVICE_ID=1
 echo " Running loss scenario test for Device $DEVICE_ID (duration=${DURATION}s, intervals=${INTERVALS})"
 
+# Ask user for device IDs
+read -p "Enter device IDs separated by commas [default: 1]: " DEVICE_INPUT
+DEVICE_IDS=${DEVICE_INPUT:-1}
+IFS=',' read -r -a DEVICE_IDS <<< "$DEVICE_IDS"
+
+
+
+
 for i in {1..5}; do
     echo "=== Loss test run $i ==="
 
+    # Create per-run directory FIRST
+    RUN_DIR="logs/loss_run${i}"
+    mkdir -p "$RUN_DIR"
+    chmod 777 "$RUN_DIR"
+
     # Start PCAP capture
-    sudo tcpdump -i lo udp port 12002 -w logs/loss_run${i}.pcap &>/dev/null &
+    PCAP_FILE="$RUN_DIR/loss_run${i}.pcap"
+    sudo tcpdump -i lo udp port 12002 -w "$PCAP_FILE" &>/dev/null &
     PCAP_PID=$!
 
     # Remove previous server CSV to start fresh
@@ -53,13 +69,13 @@ for i in {1..5}; do
     rm -f "$SERVER_CSV"
 
     # Start server
-    SERVER_LOG=logs/server_loss_run${i}.log
+    SERVER_LOG="$RUN_DIR/server.log"
     $PYTHON udpsrv.py > "$SERVER_LOG" 2>&1 &
     SERVER_PID=$!
     sleep 1
 
     # Run client
-    CLIENT_LOG=logs/client_loss_run${i}.log
+    CLIENT_LOG="$RUN_DIR/client.log"
     set +e
     $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1
     CLIENT_EXIT=$?
@@ -68,19 +84,32 @@ for i in {1..5}; do
         echo "Client crashed during run $i (exit code $CLIENT_EXIT)"
     fi
 
+    # Create per-run directory
+    RUN_DIR="logs/loss_run${i}"
+    mkdir -p "$RUN_DIR"
+    chmod 777 "$RUN_DIR"
+
     # Stop server & PCAP
     kill "$SERVER_PID" 2>/dev/null || true
     kill "$PCAP_PID" 2>/dev/null || true
-    echo "PCAP saved: logs/loss_run${i}.pcap"
+
 
     # Save NetEm command to log (do not execute)
-    echo "sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%" > logs/netem_loss_run${i}.txt
-    echo "NetEm log saved: logs/netem_loss_run${i}.txt"
+    NETEM_LOG="$RUN_DIR/netem_loss_run${i}.txt"
+    echo "sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%" > "$NETEM_LOG"
+    echo "NetEm log saved: $NETEM_LOG"
+
+
 
     # ---- Generate CSV for this run ----
-    CSV_FILE=logs/loss_run${i}.csv
-    cp "$SERVER_CSV" "$CSV_FILE"
-    echo "CSV saved for run $i: $CSV_FILE"
+     CSV_FILE="$RUN_DIR/loss_run${i}.csv"
+    if [ -f "$SERVER_CSV" ]; then
+        cp "$SERVER_CSV" "$CSV_FILE"
+        chmod 666 "$CSV_FILE"
+        echo "CSV saved: $CSV_FILE"
+    else
+        echo "Warning: CSV not found for run $i"
+    fi
 
     # ---- Packets per interval and sequence gaps/duplicates from client log ----
     echo " Device $DEVICE_ID: Packets and sequence info for run $i"
