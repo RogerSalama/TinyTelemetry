@@ -1,0 +1,38 @@
+UDP Server running on port 12001 (max 200 bytes)
+CSV initialized with headers (file: logs/iot_device_data.csv)
+NACK Scheduler Thread started.
+ -> INIT message from Device 1 (unit=fahrenheit)
+ Data saved (ID:1, seq=1)
+ Data saved (ID:1, seq=2)
+ -> DATA received (ID:1, seq=2)
+ Data saved (ID:1, seq=3)
+ -> DATA received (ID:1, seq=3)
+ Data saved (ID:1, seq=4)
+ -> DATA received (ID:1, seq=4)
+ [~] Scheduled NACK for ID:1, seq: 5 at T + 0.35s
+ Data saved (ID:1, seq=6)
+ -> DATA received (ID:1, seq=6) with GAP.
+ [<<] Sent NACK request for ID:1, seq: 5
+ [~] Scheduled NACK for ID:1, seq: 7 at T + 0.35s
+ Data saved (ID:1, seq=8)
+ -> DATA received (ID:1, seq=8) with GAP.
+ [<<] Sent NACK request for ID:1, seq: 7
+ Data saved (ID:1, seq=9)
+ -> DATA received (ID:1, seq=9)
+ Data saved (ID:1, seq=10)
+ -> DATA received (ID:1, seq=10)
+ Data saved (ID:1, seq=11)
+ -> DATA received (ID:1, seq=11)
+ Data saved (ID:1, seq=12)
+ -> DATA received (ID:1, seq=12)
+ Data saved (ID:1, seq=13)
+ -> DATA received (ID:1, seq=13)
+ Data saved (ID:1, seq=14)
+ -> DATA received (ID:1, seq=14)
+ [~] Scheduled NACK for ID:1, seq: 15 at T + 0.35s
+ Data saved (ID:1, seq=16)
+ -> DATA received (ID:1, seq=16) with GAP.
+ [<<] Sent NACK request for ID:1, seq: 15
+ [+] Recovered packet ID:1, seq:15 (was missing).
+ Data saved (ID:1, seq=15)
+ -> DATA received (ID:1, seq=15)

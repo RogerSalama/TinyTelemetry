@@ -1,3 +1,3 @@
-UDP Server running on port 12003 (max 200 bytes)
+UDP Server running on port 12000 (max 200 bytes)
 CSV initialized with headers (file: logs\iot_device_data.csv)
 NACK Scheduler Thread started.

@@ -1,0 +1,47 @@
+Sent INIT (Device=6, seq=1, unit=watts)
+Starting test for Device 6 with intervals [1] (10s each)...
+
+--- Device 6: Running 1s interval for 10 seconds ---
+payload before encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
+payload after encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
+Payload size: 9 bytes (expected: 9)
+Sent DATA (Device=6, seq=2, interval=1s, batch=['10.0', '10.5'])
+payload before encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
+payload after encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
+Payload size: 13 bytes (expected: 13)
+Sent DATA (Device=6, seq=3, interval=1s, batch=['9.8', '9.9', '10.1'])
+payload before encryption:b'\x00\x00\xa7\xd8\xc0'
+payload after encryption:b'\x00\x00\xa7\xd8\xc0'
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=6, seq=4, interval=1s, batch=['11.0'])
+payload before encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
+payload after encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
+Payload size: 21 bytes (expected: 21)
+Sent DATA (Device=6, seq=5, interval=1s, batch=['10.2', '10.3', '10.4', '10.5', '10.6'])
+payload before encryption:b'\x00\x00\x94\x02\xa0'
+payload after encryption:b'\x00\x00\x94\x02\xa0'
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=6, seq=6, interval=1s, batch=['9.7'])
+payload before encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
+payload after encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
+Payload size: 9 bytes (expected: 9)
+Sent DATA (Device=6, seq=7, interval=1s, batch=['10.0', '10.5'])
+payload before encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
+payload after encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
+Payload size: 13 bytes (expected: 13)
+Sent DATA (Device=6, seq=8, interval=1s, batch=['9.8', '9.9', '10.1'])
+payload before encryption:b'\x00\x00\xa7\xd8\xc0'
+payload after encryption:b'\x00\x00\xa7\xd8\xc0'
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=6, seq=9, interval=1s, batch=['11.0'])
+payload before encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
+payload after encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
+Payload size: 21 bytes (expected: 21)
+Sent DATA (Device=6, seq=10, interval=1s, batch=['10.2', '10.3', '10.4', '10.5', '10.6'])
+payload before encryption:b'\x00\x00\x94\x02\xa0'
+payload after encryption:b'\x00\x00\x94\x02\xa0'
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=6, seq=11, interval=1s, batch=['9.7'])
+Sent HEARTBEAT for Device 6
+Test finished. Closing client...
+Client finished.

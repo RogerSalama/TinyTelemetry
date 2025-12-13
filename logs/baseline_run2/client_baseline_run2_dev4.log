@@ -1,0 +1,10 @@
+Sent INIT (Device=4, seq=1, unit=volts)
+Starting test for Device 4 with intervals [5] (10s each)...
+
+--- Device 4: Running 5s interval for 10 seconds ---
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=4, seq=2, interval=5s, batch=['3.30'])
+Payload size: 9 bytes (expected: 9)
+Sent DATA (Device=4, seq=3, interval=5s, batch=['3.29', '3.31'])
+Test finished. Closing client...
+Client finished.

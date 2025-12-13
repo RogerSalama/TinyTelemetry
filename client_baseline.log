@@ -1,3 +1,1 @@
-UDP Server running on port 12003 (max 200 bytes)
-CSV initialized with headers (file: logs\iot_device_data.csv)
-NACK Scheduler Thread started.
+device_id must be between 0 and 15

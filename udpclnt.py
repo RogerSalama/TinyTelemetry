@@ -4,26 +4,34 @@ import time
 import os
 import sys
 import struct
+import random
 from protocol import *
-SERVER_PORT=12000
 
-# Configurable defaults
-DEFAULT_INTERVAL_DURATION = 20  # total test duration = 60s * 3 intervals
+SERVER_PORT = 12001
+DEFAULT_INTERVAL_DURATION = 20
 DEFAULT_INTERVALS = [1, 5, 30]
-sensors = []
-time.sleep(2)
-# Parse command-line arguments
-if len(sys.argv) > 1:
+
+if len(sys.argv) < 2:
+    print("Usage: python udpclnt.py <device_id> [interval_duration] [intervals_csv]")
+    sys.exit(1)
+
+try:
+    MY_DEVICE_ID = int(sys.argv[1])
+except ValueError:
+    print("device_id must be an integer")
+    sys.exit(1)
+
+if len(sys.argv) > 2:
     try:
-        Interval_Duration = int(sys.argv[1])
+        Interval_Duration = int(sys.argv[2])
     except ValueError:
         Interval_Duration = DEFAULT_INTERVAL_DURATION
 else:
     Interval_Duration = DEFAULT_INTERVAL_DURATION
 
-if len(sys.argv) > 2:
+if len(sys.argv) > 3:
     try:
-        intervals = [int(x) for x in sys.argv[2].split(",")]
+        intervals = [int(x) for x in sys.argv[3].split(",")]
     except ValueError:
         intervals = DEFAULT_INTERVALS
 else:
@@ -33,16 +41,29 @@ SERVER_ADDR = ('localhost', SERVER_PORT)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 running = True
-
-# HISTORY STORAGE (Key is now (device_id, seq_num) tuple)
+sensors = []    
 sent_history = {} 
+CONFIG_FILE = "device_config.txt"
 
-# Send INIT message once
-# header = build_header(device_id=MY_DEVICE_ID, batch_count=0, seq_num=seq_num, msg_type=MSG_INIT)
-# client_socket.sendto(header, SERVER_ADDR)
-# sent_history[(MY_DEVICE_ID, seq_num)] = header # Store with device ID
-# print(f"Sent INIT (Device={MY_DEVICE_ID}, seq={seq_num})")
-# seq_num += 1
+def load_device_config(path):
+    config = {}
+    if not os.path.exists(path):
+        return config
+    with open(path, "r") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#"): continue
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) < 3: continue
+            try:
+                did = int(parts[0])
+            except ValueError: continue
+            unit = parts[1]
+            batch_file = parts[2]
+            config[did] = (unit, batch_file)
+    return config
+
+device_config = load_device_config(CONFIG_FILE)
 
 def compress_data(values):
     compressed_values = []
@@ -55,211 +76,191 @@ def compress_data(values):
         else:
             compressed_values.append(value)
             flag_batches.append(i)
-            
     return compressed_values, flag_batches
 
 def send_heartbeat():
-    """Send heartbeat messages every 1 second from all devices."""
     global running
     while running:
         time.sleep(10)
-        # time.sleep(1)
-        #sending heartbeat message for all sensors in text file
         for sensor in sensors:
             header = build_checksum_header(device_id=sensor['device_id'], batch_count=0, seq_num=0, msg_type=HEART_BEAT)
             client_socket.sendto(header, SERVER_ADDR)
-            print(f"Sent HEARTBEAT for Device {sensor['device_id']} (seq={sensor['seq_num']})")
-            # sensor['seq_num'] += 1
-        # header = build_header(device_id=MY_DEVICE_ID, batch_count=0, seq_num=seq_num, msg_type=HEART_BEAT)
-        # client_socket.sendto(header, SERVER_ADDR)
-        # sent_history[(MY_DEVICE_ID, seq_num)] = header # Store with device ID
-        # print(f"Sent HEARTBEAT (Device={MY_DEVICE_ID}, seq={seq_num})")
-        # seq_num += 1
+            print(f"Sent HEARTBEAT for Device {sensor['device_id']}")
 
 def receive_nacks():
-    """Thread to listen for NACK messages from server."""
     global running
-    # Optional: set a short timeout so recvfrom can exit periodically
-    try:
-        client_socket.settimeout(1.0)
-    except Exception:
-        pass  # ignore if not supported
-    # client_socket.settimeout(1.0) # non-blocking with timeout
+    try: client_socket.settimeout(1.0)
+    except: pass 
     while running:
         try:
-            # Data received is a bytes object
             data, addr = client_socket.recvfrom(1200) 
-            
-            # Parse the header (which requires bytes)
             header = parse_header(data)
-            
-            # The payload is the part of the bytes object after the header
             payload_bytes = data[HEADER_SIZE:]
-
             received_checksum = header['checksum']
-
-
             BASE_HEADER_SIZE = 9
             base_header_bytes = data[:BASE_HEADER_SIZE]
-            calculated_checksum = calculate_expected_checksum(base_header_bytes,payload_bytes)
+            calculated_checksum = calculate_expected_checksum(base_header_bytes, payload_bytes)
 
-            checksum_valid = (received_checksum == calculated_checksum)
-
-            if not checksum_valid:
-                print(f"⚠️ Checksum mismatch: received={received_checksum}, calculated={calculated_checksum}")
+            if received_checksum != calculated_checksum:
                 continue
                         
             payload_str = payload_bytes.decode('utf-8', errors='ignore').strip()
 
             if header['msg_type'] == NACK_MSG:
-                # Server sends one NACK packet per missing sequence in the format: "DEVICE_ID:MISSING_SEQ"
                 parts = payload_str.split(":") 
-                
                 if len(parts) == 2:
                     try:
-                        # 1. FIX: Convert both parts to integers.
                         nack_device_id = int(parts[0])
-                        missing_seq = int(parts[1]) # Server sends a single sequence number
-                    except ValueError:
-                        print(f" [x] Failed to parse NACK payload into integers: {payload_str}")
-                        continue
-                else:
-                    # The original check here was too broad. Now we know exactly why it's malformed.
-                    print(f" [x] Received malformed NACK payload format: {payload_str}")
-                    continue
+                        missing_seq = int(parts[1])
+                    except ValueError: continue
+                else: continue
 
                 print(f"\n [!] Received NACK for Device {nack_device_id}, seq: {missing_seq}")
                 
-                # 2. FIX: Use the single integer sequence number to look up the packet
                 history_key = (nack_device_id, missing_seq)
                 if history_key in sent_history:
                     packet = sent_history[history_key]
                     client_socket.sendto(packet, SERVER_ADDR)
                     print(f" [>>] Retransmitting DATA seq={missing_seq}")
                 else:
-                    print(f" [x] Cannot retransmit seq={missing_seq} (not in history or INIT/HEARTBEAT)")
+                    print(f" [x] Cannot retransmit seq={missing_seq}")
 
-                # 3. FIX: Handle re-INIT NACK (seq=1) - logic cleaned up
-                if missing_seq == 1:
+                if missing_seq == 1 and sensors and sensors[0]["device_id"] == nack_device_id:
                     print(f" [^] Server requested re-INIT for Device {nack_device_id}.")
-                    for sensor in sensors:
-                        if sensor['device_id'] == nack_device_id:
-                            # We can simply resend the INIT packet (seq=1)
-                            init_header = build_checksum_header(
-                                device_id=sensor['device_id'], 
-                                batch_count=sensor['unit_code'], 
-                                seq_num=1, 
-                                msg_type=MSG_INIT
-                            )
-                            client_socket.sendto(init_header, SERVER_ADDR)
-                            sensor['current_index'] = 0
-                            sensor['seq_num'] = 2
-                            print(f" [>>] Sent re-INIT (seq=1, unit={sensor['unit']})")
-                            # time.sleep(0.1) 
-                            break 
+                    sensor = sensors[0]
+                    init_header = build_checksum_header(
+                        device_id=sensor["device_id"],
+                        batch_count=sensor["unit_code"],
+                        seq_num=1,
+                        msg_type=MSG_INIT
+                    )
+                    client_socket.sendto(init_header, SERVER_ADDR)
+                    sensor["seq_num"] = 2
+                    sensor["stream_index"] = 0 # RESET STREAM INDEX
+                    sent_history.clear()
+                    sent_history[(sensor["device_id"], 1)] = init_header
+                    print(f" [>>] Sent re-INIT (seq=1)")
 
-        except socket.timeout:
-            continue
-        except OSError as e:
-            # Handle Windows-specific socket closure errors (WinError 10022)
-            if not running:
-                break
-            print(f"Receiver thread OSError: {e}")
+        except socket.timeout: continue
+        except OSError: 
+            if not running: break
             time.sleep(0.1)
-            continue
         except Exception as e:
-            if running:
-                print(f"Error in receiver thread: {e}")
+            if running: print(f"Error in receiver thread: {e}")
             time.sleep(0.1)
 
-# Start background threads
-# threading.Thread(target=send_heartbeat, daemon=True).start()
 threading.Thread(target=receive_nacks, daemon=True).start()
 
-# Load sensor data
-if not os.path.exists("sensor_values.txt"):
-    print("sensor_values.txt not found. Please create it with comma-separated values.")
+# --- NEW: LOAD ALL DATA INTO ONE BIG LIST ---
+def load_all_data(batch_file):
+    if not os.path.exists(batch_file):
+        return []
+
+    all_data = []
+    with open(batch_file, "r") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#"): continue
+            tokens = [t.strip() for t in line.split(",") if t.strip()]
+            for t in tokens:
+                try:
+                    all_data.append(float(t))
+                except:
+                    pass
+    return all_data
+
+if MY_DEVICE_ID not in device_config:
+    print(f"this id is not configured: {MY_DEVICE_ID}")
     running = False
 else:
-    with open("sensor_values.txt") as f:
-        lines = [line.strip() for line in f if line.strip()]
+    unit, batch_filename = device_config[MY_DEVICE_ID]
+    unit_code = unit_to_code(unit)
+    # Load everything into a flat list
+    full_data_stream = load_all_data(batch_filename)
 
-    if not lines:
-        print("sensor_values.txt is empty.")
+    if not full_data_stream:
+        print(f"No valid data found in {batch_filename} for device {MY_DEVICE_ID}")
         running = False
-    else:
-        for line in lines:
-            parts = [v.strip() for v in line.split(",") if v.strip()]
-            device_id = int(parts[0])
-            unit = parts[1]
-            readings = parts[2:]
-            sensors.append({'device_id': device_id, 'unit': unit, 'readings': readings, 'unit_code': unit_to_code(unit), 'current_index': 0, 'seq_num': 1})
-         # sending init message for all sensoors in text file
-        for sensor in sensors:
-           
-            header = build_checksum_header(device_id=sensor['device_id'], batch_count=sensor['unit_code'], seq_num=sensor['seq_num'], msg_type=MSG_INIT)
-            client_socket.sendto(header, SERVER_ADDR)
-            print(f"Sent INIT (seq={sensor['seq_num']}, unit={sensor['unit']})")
-            sensor['seq_num'] += 1
-            time.sleep(1)
 
-        # Start heartbeat thread
-        threading.Thread(target=send_heartbeat, daemon=True).start()
+if running:
+    sensors.clear()
+    sensor = {
+        "device_id": MY_DEVICE_ID,
+        "unit": unit,
+        "unit_code": unit_code,
+        "data": full_data_stream, # The flat list
+        "stream_index": 0,         # Points to current position in list
+        "seq_num": 1
+    }
+    sensors.append(sensor)
 
-        print(f"Starting test for intervals {intervals} ({Interval_Duration}s each)...")
+    # Send INIT 
+    init_packet = build_checksum_header(
+        device_id=sensor["device_id"],
+        batch_count=sensor["unit_code"],
+        seq_num=sensor["seq_num"],
+        msg_type=MSG_INIT
+    )
+    client_socket.sendto(init_packet, SERVER_ADDR)
+    sent_history[(sensor["device_id"], sensor["seq_num"])] = init_packet
+    print(f"Sent INIT (Device={sensor['device_id']}, seq={sensor['seq_num']})")
+    sensor["seq_num"] += 1
 
-        for interval in intervals:
-            print(f"\n--- Running {interval}s interval for {Interval_Duration} seconds ---")
+    threading.Thread(target=send_heartbeat, daemon=True).start()
 
-            # Reset sensors to start sending readings from the beginning
-            for sensor in sensors:
-                sensor['current_index'] = 0
-            start_interval = time.time()
-            while time.time() - start_interval < Interval_Duration:
-                loop_start = time.time()
-                for sensor in sensors:
-                    start = sensor['current_index']
-                    if start < len(sensor['readings']):
-                        chunk = sensor['readings'][start:start+10]
-                        batch_count = len(chunk)
-                        # Convert chunk tokens to floats and pack as big-endian doubles (8 bytes each)
-                        values = []
-                        for token in chunk:
-                            try:
-                                values.append(float(token))
-                            except Exception:
-                                # if non-numeric token appears, fallback to 0.0 for that slot
-                                values.append(0.0)
-                        
+    print(f"Starting test for Device {MY_DEVICE_ID} with intervals {intervals} ({Interval_Duration}s each)...")
 
-                        compressed_data, flag_batches = compress_data(values)
+    for interval in intervals:
+        print(f"\n--- Device {MY_DEVICE_ID}: Running {interval}s interval for {Interval_Duration} seconds ---")
+        start_interval = time.time()
 
-                        # Encode with smart structure
-                        raw_payload = encode_smart_payload(compressed_data, flag_batches)
+        while time.time() - start_interval < Interval_Duration:
+            loop_start = time.time()
 
-                        # Encrypt the payload
-                        enc_payload = encrypt_bytes(raw_payload, sensor['device_id'], sensor['seq_num'])
+            # --- GRAB NEXT 10 NUMBERS ---
+            chunk_size = 10
+            current_idx = sensor["stream_index"]
+            data_len = len(sensor["data"])
+            
+            chunk_values = []
+            
+            # Smart wrapping: if we hit the end, wrap around immediately to fill the packet
+            for i in range(chunk_size):
+                val = sensor["data"][(current_idx + i) % data_len]
+                # Optional: Add noise so it doesn't look identical every loop
+                # val += random.uniform(-0.1, 0.1) 
+                chunk_values.append(val)
+            
+            # Update index for next time
+            sensor["stream_index"] = (current_idx + chunk_size) % data_len
 
-                        # Calculate expected size for debugging
-                        expected_size = calculate_smart_payload_size(len(compressed_data), flag_batches)
-                        print(f"Payload size: {len(raw_payload)} bytes (expected: {expected_size})")
+            # --- PREPARE PACKET ---
+            compressed_data, flag_batches = compress_data(chunk_values)
+            raw_payload = encode_smart_payload(compressed_data, flag_batches)
+            payload = encrypt_bytes(raw_payload, sensor["device_id"], sensor["seq_num"])
+            
+            batch_count = len(chunk_values) 
 
+            header = build_checksum_header(
+                device_id=sensor["device_id"],
+                batch_count=batch_count,
+                seq_num=sensor["seq_num"],
+                msg_type=MSG_DATA,
+                payload=payload
+            )
 
-                        header = build_checksum_header(device_id=sensor['device_id'], batch_count=batch_count,
-                                                                    seq_num=sensor['seq_num'], msg_type=MSG_DATA, payload=enc_payload)
-                        
-                        packet = header + enc_payload
-                        sent_history[(sensor['device_id'], sensor['seq_num'])] = packet
+            packet = header + payload
+            sent_history[(sensor["device_id"], sensor["seq_num"])] = packet
 
-                        client_socket.sendto(packet, SERVER_ADDR)
-                        print(f"Sent DATA seq={sensor['seq_num']}, interval={interval}s, readings={chunk}")
-                        sensor['seq_num'] += 1
-                        sensor['current_index'] += 10
-                        time.sleep(0.1)  # Small delay between packets
-                # Wait until next interval
-                elapsed = time.time() - loop_start
-                if elapsed < interval:
-                    time.sleep(interval - elapsed)
+            client_socket.sendto(packet, SERVER_ADDR)
+            print(f"Sent DATA (ID={sensor['device_id']}, seq={sensor['seq_num']}, count={batch_count})")
+            
+            sensor["seq_num"] += 1
+
+            # Sleep to maintain interval
+            elapsed = time.time() - loop_start
+            if elapsed < interval:
+                time.sleep(interval - elapsed)
 
 print("Test finished. Closing client...")
 running = False

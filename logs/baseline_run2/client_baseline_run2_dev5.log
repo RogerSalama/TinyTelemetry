@@ -1,0 +1,10 @@
+Sent INIT (Device=5, seq=1, unit=amps)
+Starting test for Device 5 with intervals [5] (30s each)...
+
+--- Device 5: Running 5s interval for 30 seconds ---
+Payload size: 13 bytes (expected: 13)
+Sent DATA (Device=5, seq=2, interval=5s, batch=['0.10', '0.11', '0.12'])
+Traceback (most recent call last):
+  File "D:\Abdelrahman ENG ASU\Semester 7\Networks\TinyTelemetry\udpclnt.py", line 348, in <module>
+    time.sleep(interval - elapsed)
+KeyboardInterrupt

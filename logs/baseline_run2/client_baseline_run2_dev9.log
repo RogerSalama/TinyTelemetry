@@ -1,0 +1,21 @@
+Sent INIT (Device=9, seq=1, unit=grams)
+Starting test for Device 9 with intervals [5] (30s each)...
+
+--- Device 9: Running 5s interval for 30 seconds ---
+Payload size: 13 bytes (expected: 13)
+Sent DATA (Device=9, seq=2, interval=5s, batch=['100.0', '100.1', '100.2'])
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=9, seq=3, interval=5s, batch=['99.9'])
+Payload size: 9 bytes (expected: 9)
+Sent HEARTBEAT for Device 9
+Sent DATA (Device=9, seq=4, interval=5s, batch=['101.0', '101.1'])
+Payload size: 21 bytes (expected: 21)
+Sent DATA (Device=9, seq=5, interval=5s, batch=['98.5', '98.6', '98.7', '98.8', '98.9'])
+Sent HEARTBEAT for Device 9
+Payload size: 5 bytes (expected: 5)
+Sent DATA (Device=9, seq=6, interval=5s, batch=['102.0'])
+Payload size: 13 bytes (expected: 13)
+Sent DATA (Device=9, seq=7, interval=5s, batch=['100.0', '100.1', '100.2'])
+Sent HEARTBEAT for Device 9
+Test finished. Closing client...
+Client finished.
