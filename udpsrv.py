@@ -8,7 +8,7 @@ import struct
 import threading
 from protocol import *
 import base64
-
+import signal
 # --- Real-time logging ---
 sys.stdout.reconfigure(line_buffering=True)
 SERVER_ID = 1
@@ -290,6 +290,20 @@ def _save_reordered(pkt_list):
             ])
 
 
+def graceful_shutdown(signum, frame):
+    print(f"\n[Shutdown] Signal {signum} received — flushing reorder buffer")
+
+    remaining = _reorder.flush_all()
+    _save_reordered(remaining)
+
+    server_socket.close()
+    print(f"[Shutdown] Reordered CSV finalized: {REORDER_CSV}")
+    sys.exit(0)
+
+signal.signal(signal.SIGTERM, graceful_shutdown)  # kill PID
+signal.signal(signal.SIGINT, graceful_shutdown)   # Ctrl+C
+
+
 # ADDED: metrics accumulators (aggregate for metrics.csv)
 metrics_packets = 0
 metrics_bytes = 0
@@ -312,6 +326,10 @@ trackers = {}
 received_count = 0
 duplicate_count = 0
 corruption_count = 0
+# --- FORCE reordered CSV creation at startup ---
+_init_reorder_csv()
+print(f"Reordered CSV initialized: {REORDER_CSV}")
+
 
 threading.Thread(target=nack_scheduler, daemon=True).start()
 
@@ -423,6 +441,21 @@ try:
                 save_to_csv(csv_data, True)
             else:
                 save_to_csv(csv_data)
+                 # ---------- REORDER BUFFER (ALWAYS ACTIVE) ----------
+                ts_ms = int(header['timestamp'] * 1000) + int(header['milliseconds'])
+
+                pkt = _Pkt(
+                    ts_key_ms=ts_ms,
+                    csv_dict=csv_data,
+                    dup=bool(duplicate_flag),
+                    gap=bool(gap_flag)
+                )
+
+                _reorder.push(pkt, _now_ms())
+
+                ready = _reorder.flush_ready(_now_ms())
+                _save_reordered(ready)
+
                 metrics_packets += 1
                 metrics_bytes += len(data)          # total bytes on the wire for this reading
                 metrics_cpu_ms += cpu_time_ms 

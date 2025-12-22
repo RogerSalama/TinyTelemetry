@@ -28,11 +28,6 @@ Heartbeat Received
  Data saved (ID:1, seq=0)
  Data saved (ID:1, seq=12)
  -> DATA received (ID:1, seq=12)
- Data saved (ID:1, seq=13)
- -> DATA received (ID:1, seq=13)
- Data saved (ID:1, seq=14)
- -> DATA received (ID:1, seq=14)
- Data saved (ID:1, seq=15)
- -> DATA received (ID:1, seq=15)
- Data saved (ID:1, seq=16)
- -> DATA received (ID:1, seq=16)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)

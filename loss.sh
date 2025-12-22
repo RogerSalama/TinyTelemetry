@@ -113,41 +113,55 @@ for i in {1..5}; do
 
     # ---- Packets per interval and sequence gaps/duplicates from client log ----
     echo " Device $DEVICE_ID: Packets and sequence info for run $i"
-    awk -v duration="$DURATION" -v intervals="$INTERVALS" '
+   awk -v duration="$DURATION" -v intervals="$INTERVALS" '
     BEGIN {
         split(intervals, intv_arr, ",")
+        current_interval = -1
     }
-    /Sent DATA/ {
-        match($0, /interval=([0-9]+)s/, m)
-        intv = m[1]
-        count[intv]++
-        match($0, /seq=([0-9]+)/, s)
-        seq[intv, s[1]]++
-        if (last_seq[intv] != "" && s[1] != last_seq[intv]+1) gaps[intv]++
-        last_seq[intv] = s[1]
-    }
-    END {
-        for (j in intv_arr) {
-            interval = intv_arr[j]
-            expected = int(duration / interval)
-            received = count[interval]+0
-            perc = (received/expected)*100
-            status = (perc>=99 ? " sufficient packets" : " insufficient packets")
 
-            # Duplicates
-            dup_count=0
+    /Running [0-9]+s interval/ {
+        match($0, /Running ([0-9]+)s interval/, m)
+        current_interval = m[1]
+    }
+
+    /Sent DATA/ && current_interval != -1 {
+        match($0, /seq=([0-9]+)/, s)
+        seq_num = s[1] + 0
+
+        count[current_interval]++
+        seq[current_interval, seq_num]++
+
+        if (last_seq[current_interval] != "" && seq_num != last_seq[current_interval] + 1)
+            gaps[current_interval]++
+
+        last_seq[current_interval] = seq_num
+    }
+
+    END {
+        for (i in intv_arr) {
+            interval = intv_arr[i]
+            expected = int(duration / interval)
+            received = count[interval] + 0
+            perc = (received / expected) * 100
+            status = (perc >= 99 ? "sufficient packets" : "insufficient packets")
+
+            dup_count = 0
             for (k in seq) {
                 split(k, a, SUBSEP)
-                if (a[1]==interval && seq[k]>1) dup_count+=seq[k]-1
+                if (a[1] == interval && seq[k] > 1)
+                    dup_count += seq[k] - 1
             }
-            dup_rate = (dup_count/ (received>0?received:1))*100
-            dup_status = (dup_rate<=1 ? " duplicates ≤ 1%" : " duplicates > 1%")
 
-            gap_status = (gaps[interval]>0 ? " sequence gaps detected" : " no sequence gaps")
-            printf "Interval %ds: %d/%d packets sent (%.2f%%) %s, %s, %s (dup rate %.2f%%)\n", interval, received, expected, perc, status, gap_status, dup_status, dup_rate
+            dup_rate = (dup_count / (received > 0 ? received : 1)) * 100
+            dup_status = (dup_rate <= 1 ? "duplicates ≤ 1%" : "duplicates > 1%")
+            gap_status = (gaps[interval] > 0 ? "sequence gaps detected" : "no sequence gaps")
+
+            printf "Interval %ds: %d/%d packets sent (%.2f%%) %s, %s, %s (dup rate %.2f%%)\n",
+                interval, received, expected, perc, status, gap_status, dup_status, dup_rate
         }
     }
     ' "$CLIENT_LOG"
+
 
 done
 

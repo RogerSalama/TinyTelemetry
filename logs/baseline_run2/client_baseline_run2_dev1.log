@@ -1,7 +1,7 @@
 Sent INIT (Device=1, seq=1)
-Starting test for Device 1 with intervals [1] (15s each)...
+Starting test for Device 1 with intervals [1, 10] (10s each)...
 
---- Device 1: Running 1s interval for 15 seconds ---
+--- Device 1: Running 1s interval for 10 seconds ---
 Sent DATA (ID=1, seq=2, count=10)
 Sent DATA (ID=1, seq=3, count=10)
 Sent DATA (ID=1, seq=4, count=10)
@@ -12,11 +12,9 @@ Sent DATA (ID=1, seq=8, count=10)
 Sent DATA (ID=1, seq=9, count=10)
 Sent DATA (ID=1, seq=10, count=10)
 Sent DATA (ID=1, seq=11, count=10)
-Sent HEARTBEAT for Device 1
+
+--- Device 1: Running 10s interval for 10 seconds ---
 Sent DATA (ID=1, seq=12, count=10)
-Sent DATA (ID=1, seq=13, count=10)
-Sent DATA (ID=1, seq=14, count=10)
-Sent DATA (ID=1, seq=15, count=10)
-Sent DATA (ID=1, seq=16, count=10)
+Sent HEARTBEAT for Device 1
 Test finished. Closing client...
 Client finished.

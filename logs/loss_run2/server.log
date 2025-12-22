@@ -1,12 +1,18 @@
 UDP Server running on port 12001 (max 200 bytes)
 CSV initialized with headers (file: logs/iot_device_data.csv)
 NACK Scheduler Thread started.
+ [!] Gap Detected! ID:1, Missing packets: 1
+ [~] Scheduled NACK for ID:1, seq: 1 at T + 0.35s
+ [<<] Sent NACK request for ID:1, seq: 1
  -> INIT message from Device 1 (unit=fahrenheit)
  Data saved (ID:1, seq=1)
- [~] Scheduled NACK for ID:1, seq: 2 at T + 0.35s
+ [D] Duplicate detected: ID:1, seq:1. Content ignored.
+ -> INIT message from Device 1 (unit=fahrenheit)
+ Data saved (ID:1, seq=1)
+ Data saved (ID:1, seq=2)
+ -> DATA received (ID:1, seq=2)
  Data saved (ID:1, seq=3)
- -> DATA received (ID:1, seq=3) with GAP.
- [<<] Sent NACK request for ID:1, seq: 2
+ -> DATA received (ID:1, seq=3)
  Data saved (ID:1, seq=4)
  -> DATA received (ID:1, seq=4)
  Data saved (ID:1, seq=5)
@@ -21,16 +27,11 @@ NACK Scheduler Thread started.
  -> DATA received (ID:1, seq=9)
  Data saved (ID:1, seq=10)
  -> DATA received (ID:1, seq=10)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
  Data saved (ID:1, seq=11)
  -> DATA received (ID:1, seq=11)
 Heartbeat Received
  -> HEARTBEAT from Device 1
  Data saved (ID:1, seq=0)
- [~] Scheduled NACK for ID:1, seq: 12 at T + 0.35s
- Data saved (ID:1, seq=13)
- -> DATA received (ID:1, seq=13) with GAP.
- [<<] Sent NACK request for ID:1, seq: 12
- Data saved (ID:1, seq=14)
- -> DATA received (ID:1, seq=14)
- Data saved (ID:1, seq=15)
- -> DATA received (ID:1, seq=15)

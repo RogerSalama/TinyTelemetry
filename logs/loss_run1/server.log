@@ -3,13 +3,10 @@ CSV initialized with headers (file: logs/iot_device_data.csv)
 NACK Scheduler Thread started.
  -> INIT message from Device 1 (unit=fahrenheit)
  Data saved (ID:1, seq=1)
- [~] Scheduled NACK for ID:1, seq: 2 at T + 0.35s
- Data saved (ID:1, seq=3)
- -> DATA received (ID:1, seq=3) with GAP.
- [<<] Sent NACK request for ID:1, seq: 2
- [+] Recovered packet ID:1, seq:2 (was missing).
  Data saved (ID:1, seq=2)
  -> DATA received (ID:1, seq=2)
+ Data saved (ID:1, seq=3)
+ -> DATA received (ID:1, seq=3)
  Data saved (ID:1, seq=4)
  -> DATA received (ID:1, seq=4)
  Data saved (ID:1, seq=5)
@@ -18,13 +15,10 @@ NACK Scheduler Thread started.
  -> DATA received (ID:1, seq=6)
  Data saved (ID:1, seq=7)
  -> DATA received (ID:1, seq=7)
- [~] Scheduled NACK for ID:1, seq: 8 at T + 0.35s
- Data saved (ID:1, seq=9)
- -> DATA received (ID:1, seq=9) with GAP.
- [<<] Sent NACK request for ID:1, seq: 8
- [+] Recovered packet ID:1, seq:8 (was missing).
  Data saved (ID:1, seq=8)
  -> DATA received (ID:1, seq=8)
+ Data saved (ID:1, seq=9)
+ -> DATA received (ID:1, seq=9)
  Data saved (ID:1, seq=10)
  -> DATA received (ID:1, seq=10)
  Data saved (ID:1, seq=11)
@@ -34,14 +28,6 @@ Heartbeat Received
  Data saved (ID:1, seq=0)
  Data saved (ID:1, seq=12)
  -> DATA received (ID:1, seq=12)
- [~] Scheduled NACK for ID:1, seq: 13 at T + 0.35s
- Data saved (ID:1, seq=14)
- -> DATA received (ID:1, seq=14) with GAP.
- [<<] Sent NACK request for ID:1, seq: 13
- [+] Recovered packet ID:1, seq:13 (was missing).
- Data saved (ID:1, seq=13)
- -> DATA received (ID:1, seq=13)
- Data saved (ID:1, seq=15)
- -> DATA received (ID:1, seq=15)
- Data saved (ID:1, seq=16)
- -> DATA received (ID:1, seq=16)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)

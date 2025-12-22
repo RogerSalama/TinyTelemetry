@@ -111,36 +111,48 @@ for run in {1..5}; do
         CLIENT_LOG="$RUN_DIR/client_baseline_run${run}_dev${DEVICE_ID}.log"
         echo "Device $DEVICE_ID: Checking packets per interval for run $run"
 
-        awk -v duration="$DURATION" -v intervals="$INTERVALS" '
+       awk -v duration="$DURATION" -v intervals="$INTERVALS" '
         BEGIN {
             split(intervals, intv_arr, ",")
-            for (j in intv_arr) {
-                count[intv_arr[j]] = 0
-                prev_seq[intv_arr[j]] = -1
-                in_order[intv_arr[j]] = 1
+            for (i in intv_arr) {
+                count[intv_arr[i]] = 0
+                prev_seq[intv_arr[i]] = -1
+                in_order[intv_arr[i]] = 1
             }
+            current_interval = -1
         }
-        /Sent DATA/ {
-            match($0, /interval=([0-9]+)s/, m)
-            intv = m[1]
+
+        /Running [0-9]+s interval/ {
+            match($0, /Running ([0-9]+)s interval/, m)
+            current_interval = m[1]
+        }
+
+        /Sent DATA/ && current_interval != -1 {
             match($0, /seq=([0-9]+)/, s)
-            seq = s[1]+0
-            count[intv]++
-            if (prev_seq[intv] != -1 && seq != prev_seq[intv]+1) in_order[intv] = 0
-            prev_seq[intv] = seq
+            seq = s[1] + 0
+            count[current_interval]++
+
+            if (prev_seq[current_interval] != -1 && seq != prev_seq[current_interval] + 1)
+                in_order[current_interval] = 0
+
+            prev_seq[current_interval] = seq
         }
+
         END {
-            for (j in intv_arr) {
-                interval = intv_arr[j]
+            for (i in intv_arr) {
+                interval = intv_arr[i]
                 expected = int(duration / interval)
-                received = count[interval]+0
+                received = count[interval] + 0
                 perc = (received / expected) * 100
-                report_status = (perc >= 99 ? "sufficient packets" : "insufficient packets")
+                status = (perc >= 99 ? "sufficient packets" : "insufficient packets")
                 seq_status = (in_order[interval] ? "sequence numbers OK" : "sequence numbers OUT OF ORDER")
-                printf "Interval %ds: %d/%d packets received (%.2f%%) %s, %s\n", interval, received, expected, perc, report_status, seq_status
+
+                printf "Interval %ds: %d/%d packets received (%.2f%%) %s, %s\n",
+                    interval, received, expected, perc, status, seq_status
             }
         }
         ' "$CLIENT_LOG"
+
     done
 
 done

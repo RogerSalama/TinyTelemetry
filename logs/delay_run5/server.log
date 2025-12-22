@@ -1,0 +1,39 @@
+UDP Server running on port 12001 (max 200 bytes)
+CSV initialized with headers (file: logs/iot_device_data.csv)
+Reordered CSV initialized: logs/iot_device_data_reordered.csv
+NACK Scheduler Thread started.
+ [!] Gap Detected! ID:1, Missing packets: 1
+ [~] Scheduled NACK for ID:1, seq: 1 at T + 0.35s
+ -> INIT message from Device 1 (unit=fahrenheit)
+ Data saved (ID:1, seq=1)
+ [~] Scheduled NACK for ID:1, seq: 2 at T + 0.35s
+ Data saved (ID:1, seq=3)
+ -> DATA received (ID:1, seq=3) with GAP.
+ [<<] Sent NACK request for ID:1, seq: 2
+ [+] Recovered packet ID:1, seq:2 (was missing).
+ Data saved (ID:1, seq=2)
+ -> DATA received (ID:1, seq=2)
+ Data saved (ID:1, seq=4)
+ -> DATA received (ID:1, seq=4)
+ Data saved (ID:1, seq=5)
+ -> DATA received (ID:1, seq=5)
+ Data saved (ID:1, seq=6)
+ -> DATA received (ID:1, seq=6)
+ Data saved (ID:1, seq=7)
+ -> DATA received (ID:1, seq=7)
+ Data saved (ID:1, seq=8)
+ -> DATA received (ID:1, seq=8)
+ Data saved (ID:1, seq=9)
+ -> DATA received (ID:1, seq=9)
+ Data saved (ID:1, seq=10)
+ -> DATA received (ID:1, seq=10)
+ Data saved (ID:1, seq=11)
+ -> DATA received (ID:1, seq=11)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:1, seq=12)
+ -> DATA received (ID:1, seq=12)
+
+[Shutdown] Signal 15 received — flushing reorder buffer
+[Shutdown] Reordered CSV finalized: logs/iot_device_data_reordered.csv
