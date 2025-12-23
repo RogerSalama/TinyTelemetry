@@ -36,22 +36,15 @@ CSV_HEADERS = [
 ]
 
 def init_csv_file():
-    """Ensure CSV always has headers at the top, even if file exists."""
-    rows = []
-    if os.path.exists(CSV_FILENAME):
-        with open(CSV_FILENAME, 'r', newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            rows = list(reader)  # read all rows
-
-    # Always overwrite the file with header + existing rows
+    """
+    Initialize the CSV file by truncating it and writing only the header.
+    This ensures each run starts with a fresh CSV instead of preserving rows
+    from previous runs.
+    """
     with open(CSV_FILENAME, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(CSV_HEADERS)
-        if rows:
-            if rows[0] == CSV_HEADERS:
-                rows = rows[1:]
-            writer.writerows(rows)
-    print(f"CSV initialized with headers (file: {CSV_FILENAME})")
+    print(f"CSV initialized (truncated) at: {CSV_FILENAME}")
 
 
 def save_to_csv(data_dict, is_update=False):
@@ -476,6 +469,23 @@ try:
             unit = code_to_unit(header['batch_count'])
             print(f" -> INIT message from Device {device_id} (unit={unit})")
             save_to_csv(csv_data)
+            # Also include INIT messages in the timestamp-reordered CSV
+            try:
+                ts_ms = int(header['timestamp'] * 1000) + int(header['milliseconds'])
+            except Exception:
+                ts_ms = _now_ms()
+
+            pkt = _Pkt(
+                ts_key_ms=ts_ms,
+                csv_dict=csv_data,
+                dup=bool(duplicate_flag),
+                gap=bool(gap_flag)
+            )
+
+            _reorder.push(pkt, _now_ms())
+            ready = _reorder.flush_ready(_now_ms())
+            _save_reordered(ready)
+
             trackers[device_id].highest_seq = seq
             trackers[device_id].missing_set.clear()
         elif header['msg_type'] == HEART_BEAT:
