@@ -83,6 +83,7 @@ for run in {1..5}; do
     # Stop server and PCAP
    if kill -0 "$SERVER_PID" 2>/dev/null; then
         kill "$SERVER_PID"
+        wait "$SERVER_PID" 2>/dev/null || true
     fi
 
     if kill -0 "$PCAP_PID" 2>/dev/null; then
@@ -104,6 +105,16 @@ for run in {1..5}; do
         echo "CSV saved for run $run: $CSV_FILE"
     else
         echo "Warning: logs/iot_device_data.csv not found, skipping CSV copy."
+    fi
+
+    # Generate metrics CSV for this run
+    METRICS_FILE="$RUN_DIR/metrics_baseline_run${run}.csv"
+    if [ -f logs/metrics.csv ]; then
+        cp logs/metrics.csv "$METRICS_FILE"
+        chmod 666 "$METRICS_FILE"
+        echo "Metrics CSV saved for run $run: $METRICS_FILE"
+    else
+        echo "Warning: logs/metrics.csv not found, skipping metrics copy."
     fi
 
     # Acceptance Criteria Check per interval per device

@@ -5,6 +5,24 @@
 
 set -euo pipefail
 
+# --- Cleanup Function ---
+cleanup() {
+    echo "Cleaning up..."
+    # Kill background jobs (server, clients, tcpdump)
+    jobs -p | xargs -r kill 2>/dev/null || true
+    
+    # Reset network
+    sudo tc qdisc del dev lo root 2>/dev/null || true
+    
+    # Kill any stray udpsrv.py processes
+    pkill -f udpsrv.py 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# Kill any existing server instances before starting
+echo "Killing stale server instances..."
+pkill -f udpsrv.py 2>/dev/null 
+
 mkdir -p logs
 
 # Reset network
@@ -90,8 +108,14 @@ for i in {1..5}; do
     chmod 777 "$RUN_DIR"
 
     # Stop server & PCAP
-    kill "$SERVER_PID" 2>/dev/null || true
-    kill "$PCAP_PID" 2>/dev/null || true
+    if kill -0 "$SERVER_PID" 2>/dev/null; then
+        kill "$SERVER_PID"
+        wait "$SERVER_PID" 2>/dev/null || true
+    fi
+    
+    if kill -0 "$PCAP_PID" 2>/dev/null; then
+        kill "$PCAP_PID" 2>/dev/null || true
+    fi
 
 
     # Save NetEm command to log (do not execute)
@@ -109,6 +133,16 @@ for i in {1..5}; do
         echo "CSV saved: $CSV_FILE"
     else
         echo "Warning: CSV not found for run $i"
+    fi
+
+    # Generate metrics CSV for this run
+    METRICS_FILE="$RUN_DIR/metrics_loss_run${i}.csv"
+    if [ -f logs/metrics.csv ]; then
+        cp logs/metrics.csv "$METRICS_FILE"
+        chmod 666 "$METRICS_FILE"
+        echo "Metrics CSV saved for run $i: $METRICS_FILE"
+    else
+        echo "Warning: logs/metrics.csv not found, skipping metrics copy."
     fi
 
     # ---- Packets per interval and sequence gaps/duplicates from client log ----

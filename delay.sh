@@ -1,32 +1,34 @@
 #!/usr/bin/env bash
 # run_delay.sh
 # Delay + jitter scenario
-# NetEm: 100ms ±10ms
-# Acceptance:
-#  - Server does not crash
-#  - Packets are reordered correctly by DEVICE timestamp
-#  - No buffer overrun / deadlock
+# NetEm: 100ms ±10ms with reordering
+# Goal: Simulate one packet being significantly delayed
 
 set -euo pipefail
 
+# --- Cleanup Function ---
+cleanup() {
+    echo "Cleaning up..."
+    # Kill background jobs
+    jobs -p | xargs -r kill 2>/dev/null || true
+    
+    # Reset network
+    sudo tc qdisc del dev lo root 2>/dev/null || true
+    
+    # Kill any stray udpsrv.py processes
+    # We use || true because pkill might return 1 (no process) or 127 (not found)
+    pkill -f udpsrv.py 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# Kill any existing server instances before starting
+echo "Killing stale server instances..."
+pkill -f udpsrv.py 2>/dev/null || true
+
+
 mkdir -p logs
 
-# -----------------------------
-# Reset network
-# -----------------------------
-sudo tc qdisc del dev lo root 2>/dev/null || true
-
-# -----------------------------
-# Apply NetEm delay + jitter
-# -----------------------------
-DELAY_MS=100
-JITTER_MS=10
-sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms
-echo "Applied ${DELAY_MS}ms ±${JITTER_MS}ms delay on loopback"
-
-# -----------------------------
-# Detect Python
-# -----------------------------
+# Detect Python interpreter
 PYTHON=""
 for cmd in python3 python py; do
     if command -v "$cmd" >/dev/null 2>&1; then
@@ -49,25 +51,52 @@ DURATION=${DURATION:-60}
 
 read -p "Enter intervals separated by commas [default: 1,5,30]: " INTERVALS
 INTERVALS=${INTERVALS:-1,5,30}
+IFS=',' read -r -a INTERVAL_ARRAY <<< "$INTERVALS"
 
-DEVICE_ID=1
-echo "Running delay+jitter test for Device ${DEVICE_ID}"
+read -p "Enter device IDs separated by commas [default: 1]: " DEVICE_INPUT
+DEVICE_INPUT=${DEVICE_INPUT:-1}
+IFS=',' read -r -a DEVICE_IDS <<< "$DEVICE_INPUT"
+
+echo "Running delay+jitter test for devices: ${DEVICE_IDS[*]}"
 echo "Duration=${DURATION}s, Intervals=${INTERVALS}"
+
+# -----------------------------
+# Network configuration
+# -----------------------------
+DELAY_MS=100
+JITTER_MS=10
+REORDER_PERCENT=70
+
+# Reset network first
+sudo tc qdisc del dev lo root 2>/dev/null || true
+
+# Apply NetEm delay + jitter + reordering
+sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms
+echo "Applied network conditions:"
+echo "  Base delay: ${DELAY_MS}ms"
+echo "  Jitter: ±${JITTER_MS}ms"
 
 # -----------------------------
 # Run 5 delay tests
 # -----------------------------
 for run in {1..5}; do
+    echo ""
     echo "=== Delay test run ${run} ==="
 
+    # Create per-run directory
     RUN_DIR="logs/delay_run${run}"
+    if [ -f "$RUN_DIR" ]; then
+    rm "$RUN_DIR"
+    fi
     mkdir -p "$RUN_DIR"
     chmod 777 "$RUN_DIR"
-
-    SERVER_CSV="logs/iot_device_data.csv"
-    REORDERED_CSV="logs/iot_device_data_reordered.csv"
-
-    rm -f "$SERVER_CSV" "$REORDERED_CSV"
+    
+    # Set paths for this run
+    RUN_SERVER_CSV="$RUN_DIR/iot_device_data.csv"
+    RUN_REORDERED_CSV="$RUN_DIR/delay_run${run}_reordered.csv"
+    
+    # Clean up any existing CSV files in logs root directory
+    rm -f logs/iot_device_data.csv logs/delay_run${run}_reordered.csv
 
     # -------------------------
     # Start PCAP capture
@@ -75,6 +104,7 @@ for run in {1..5}; do
     PCAP_FILE="$RUN_DIR/delay_run${run}.pcap"
     sudo tcpdump -i lo udp port 12001 -w "$PCAP_FILE" &>/dev/null &
     PCAP_PID=$!
+    sleep 0.5
 
     # -------------------------
     # Start server
@@ -82,48 +112,94 @@ for run in {1..5}; do
     SERVER_LOG="$RUN_DIR/server.log"
     $PYTHON udpsrv.py > "$SERVER_LOG" 2>&1 &
     SERVER_PID=$!
-    sleep 1
+    sleep 1  # Give server time to start
 
     # -------------------------
-    # Run client
+    # Run clients for all devices
     # -------------------------
-    CLIENT_LOG="$RUN_DIR/client.log"
-    $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1
+    CLIENT_PIDS=()
+    CLIENT_LOGS=()
+    
+    echo "Starting clients for devices: ${DEVICE_IDS[*]}"
+    for DEVICE_ID in "${DEVICE_IDS[@]}"; do
+        CLIENT_LOG="$RUN_DIR/client_device${DEVICE_ID}.log"
+        echo "  Starting client for Device $DEVICE_ID..."
+        $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1 &
+        CLIENT_PIDS+=($!)
+        CLIENT_LOGS+=("$CLIENT_LOG")
+    done
 
-    # -------------------------
-    # Stop server & PCAP
-    # -------------------------
-    kill "$SERVER_PID" 2>/dev/null || true
-    kill "$PCAP_PID" 2>/dev/null || true
+    # Wait for all clients to finish
+    echo "Waiting for all clients to complete..."
+    for pid in "${CLIENT_PIDS[@]}"; do
+        wait $pid 2>/dev/null || true
+    done
 
+    # Give server time to process final packets
+    sleep 3
+
+    # Stop server
+    if kill -0 "$SERVER_PID" 2>/dev/null; then
+        kill "$SERVER_PID" 2>/dev/null || true
+        wait "$SERVER_PID" 2>/dev/null || true
+    fi
+
+    # Stop PCAP capture
+    if kill -0 "$PCAP_PID" 2>/dev/null; then
+        sudo kill "$PCAP_PID" 2>/dev/null || true
+        wait "$PCAP_PID" 2>/dev/null || true
+    fi
+    
     echo "PCAP saved: $PCAP_FILE"
 
     # -------------------------
-    # Save NetEm config
+    # Move CSV files to run directory
     # -------------------------
-    echo "sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms" \
-        > "$RUN_DIR/netem_delay_run${run}.txt"
-
-    # -------------------------
-    # Save CSV snapshots
-    # -------------------------
-    if [ -f "$SERVER_CSV" ]; then
-        cp "$SERVER_CSV" "$RUN_DIR/delay_run${run}.csv"
-        echo "Raw CSV saved: $RUN_DIR/delay_run${run}.csv"
+    if [ -f "logs/iot_device_data.csv" ]; then
+        mv "logs/iot_device_data.csv" "$RUN_SERVER_CSV"
+        echo "Raw CSV moved to: $RUN_SERVER_CSV"
     else
-        echo "Warning: raw CSV not found for run ${run}"
+        echo "Warning: No raw CSV data found for run $run"
+    fi
+    
+    if [ -f "logs/iot_device_data_reordered.csv" ]; then
+        mv "logs/iot_device_data_reordered.csv" "$RUN_REORDERED_CSV"
+        echo "Reordered CSV moved to: $RUN_REORDERED_CSV"
+    else
+        echo "Warning: No reordered CSV data found for run $run"
     fi
 
-    if [ -f "$REORDERED_CSV" ]; then
-        cp "$REORDERED_CSV" "$RUN_DIR/delay_run${run}_reordered.csv"
-        echo "Reordered CSV saved: $RUN_DIR/delay_run${run}_reordered.csv"
+    # Generate metrics CSV for this run
+    METRICS_FILE="$RUN_DIR/metrics_delay_run${run}.csv"
+    if [ -f logs/metrics.csv ]; then
+        cp logs/metrics.csv "$METRICS_FILE"
+        chmod 666 "$METRICS_FILE"
+        echo "Metrics CSV saved for run $run: $METRICS_FILE"
     else
-        echo "Warning: reordered CSV not found for run ${run}"
+        echo "Warning: logs/metrics.csv not found, skipping metrics copy."
     fi
 
     # -------------------------
-    # Acceptance criteria
+    # Save NetEm configuration
     # -------------------------
+    NETEM_LOG="$RUN_DIR/netem_config.txt"
+    {
+        echo "Network configuration for delay test run ${run}:"
+        echo "  sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms reorder ${REORDER_PERCENT}%"
+        echo "  Base delay: ${DELAY_MS}ms"
+        echo "  Jitter: ±${JITTER_MS}ms"
+        echo "  Reordering: ${REORDER_PERCENT}% of packets"
+        echo ""
+        echo "Goal: Simulate one packet being significantly delayed"
+        echo "Expected behavior: Packets may arrive out of order (e.g., 1,3,4,2)"
+    } > "$NETEM_LOG"
+
+    # -------------------------
+    # Acceptance Criteria Check
+    # -------------------------
+    echo ""
+    echo "--- Acceptance Criteria Check ---"
+    
     echo "Checking acceptance criteria for run ${run}"
 
     # 1) Timestamp reordering check (DEVICE timestamp column = 5)
@@ -162,4 +238,12 @@ done
 # Reset network
 # -----------------------------
 sudo tc qdisc del dev lo root 2>/dev/null || true
-echo "Delay+jitter test complete."
+echo ""
+echo "========================================"
+echo "Delay+jitter test complete!"
+echo "Summary:"
+echo "- Completed 5 runs for devices: ${DEVICE_IDS[*]}"
+echo "- Network conditions: ${DELAY_MS}ms delay ±${JITTER_MS}ms with ${REORDER_PERCENT}% reordering"
+echo "- All data stored in logs/delay_run[1-5]/ directories"
+echo "- Check each run directory for detailed logs and CSV files"
+echo "========================================"
