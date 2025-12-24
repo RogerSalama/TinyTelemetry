@@ -224,7 +224,7 @@ class _ReorderBuffer:  # ADDED
     Small jitter-guarded buffer keyed by sensor/device timestamp (ms).
     Packets stay until they are safe to release in timestamp order.
     """
-    def __init__(self, guard_ms=150, max_buffer_ms=1000):
+    def __init__(self, guard_ms=10000, max_buffer_ms=10000):
         self.guard_ms = guard_ms
         self.max_buffer_ms = max_buffer_ms
         self.heap = []  # holds (pkt, arrival_ms)
@@ -234,17 +234,18 @@ class _ReorderBuffer:  # ADDED
             self.max_seen_ts = pkt.ts_key_ms
         heapq.heappush(self.heap, (pkt, arrival_ms))
     def flush_ready(self, now_ms: int):
-        """
-        Flush packets whose sensor timestamp is <= watermark
-        or have stayed longer than max_buffer_ms.
-        """
         ready = []
-        watermark = self.max_seen_ts - self.guard_ms
+        # Ignore max_seen_ts. Only release if the packet has 
+        # stayed in the buffer longer than the guard_ms.
         while self.heap:
             top_pkt, top_arrival = self.heap[0]
-            if top_pkt.ts_key_ms <= watermark or (now_ms - top_arrival) >= self.max_buffer_ms:
+            
+            # If the packet has been in the heap for at least 500ms (guard_ms)
+            if (now_ms - top_arrival) >= self.guard_ms:
                 ready.append(heapq.heappop(self.heap)[0])
             else:
+                # The oldest packet in the heap hasn't waited long enough,
+                # so we stop here.
                 break
         return ready
     def flush_all(self):
@@ -492,9 +493,9 @@ try:
                     gap=bool(gap_flag)
                 )
 
-                _reorder.push(pkt, _now_ms())
+                _reorder.push(pkt, ts_ms)
 
-                ready = _reorder.flush_ready(_now_ms())
+                ready = _reorder.flush_ready(ts_ms)
                 _save_reordered(ready)
 
                 metrics_packets += 1
@@ -533,8 +534,8 @@ try:
                 gap=bool(gap_flag)
             )
 
-            _reorder.push(pkt, _now_ms())
-            ready = _reorder.flush_ready(_now_ms())
+            _reorder.push(pkt, ts_ms)
+            ready = _reorder.flush_ready(ts_ms)
             _save_reordered(ready)
 
             trackers[device_id].highest_seq = seq
