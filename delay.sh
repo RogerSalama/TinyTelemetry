@@ -63,8 +63,8 @@ echo "Duration=${DURATION}s, Intervals=${INTERVALS}"
 # -----------------------------
 # Network configuration
 # -----------------------------
-DELAY_MS=100
-JITTER_MS=10
+DELAY_MS=2000
+JITTER_MS=200
 REORDER_PERCENT=70
 
 # Reset network first

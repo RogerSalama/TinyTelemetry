@@ -300,46 +300,6 @@ def graceful_shutdown(signum, frame):
 
     remaining = _reorder.flush_all()
     _save_reordered(remaining)
-    if report_intervals_ms:
-        report_intervals_ms.sort()
-        mid = len(report_intervals_ms) // 2
-        if len(report_intervals_ms) % 2 == 1:
-            reporting_interval_ms = report_intervals_ms[mid]
-        else:
-            reporting_interval_ms = (report_intervals_ms[mid-1] + report_intervals_ms[mid]) / 2.0
-    else:
-        reporting_interval_ms = 0.0
-
-
-    # ADDED: write metrics.csv (append a single summary row per run)
-    MET_CSV = os.path.join(LOG_DIR, "metrics.csv")
-    metrics_row = [
-        metrics_packets,
-        (metrics_bytes / metrics_packets) if metrics_packets else 0.0,
-        (metrics_dup_total / metrics_packets) if metrics_packets else 0.0,
-        int(metrics_gap_total),
-        (metrics_cpu_ms / metrics_packets) if metrics_packets else 0.0,
-        reporting_interval_ms,  # PATCH: new column
-        time.strftime('%Y-%m-%d %H:%M:%S') # finished_at
-    ]
-    try:
-        need_header = not os.path.exists(MET_CSV)
-        with open(MET_CSV, 'a', newline='') as f:
-            w = csv.writer(f)
-            if need_header:
-                w.writerow(["packets_received",
-                            "bytes_per_report",
-                            "duplicate_rate",
-                            "sequence_gap_count",
-                            "cpu_ms_per_report",
-                            "reporting_interval_ms",  # PATCH: new header
-                            "finished_at"])
-            w.writerow(metrics_row)
-        print(f"\nMetrics appended to: {MET_CSV}")
-        print(f"Reordered CSV (timestamp order) written to: {REORDER_CSV}")
-    except Exception as e:
-        print(f"Failed to write metrics.csv: {e}")
-
     server_socket.close()
     print(f"[Shutdown] Reordered CSV finalized: {REORDER_CSV}")
     sys.exit(0)
@@ -404,7 +364,6 @@ def update_metrics():
 init_csv_file()
 trackers = {}
 received_count = 0
-duplicate_count = 0
 corruption_count = 0
 # --- FORCE reordered CSV creation at startup ---
 _init_reorder_csv()
@@ -481,6 +440,7 @@ try:
         elif diff == 1:
             tracker.highest_seq = seq
         elif diff > 1:
+            metrics_gap_total+=1
             gap_flag = 1
             for missing_seq in range(tracker.highest_seq + 1, seq):
                 tracker.missing_set.add(missing_seq)
@@ -492,7 +452,7 @@ try:
                 print(f" [+] Recovered packet ID:{device_id}, seq:{seq} (was missing).")
             else:
                 duplicate_flag = 1
-                duplicate_count += 1
+                metrics_dup_total += 1
                 received_count -= 1
                 print(f" [D] Duplicate detected: ID:{device_id}, seq:{seq}. Content ignored.")
 
@@ -597,39 +557,5 @@ except KeyboardInterrupt:
     print("\n=== Baseline Test Summary ===")
     print(f"Total received: {received_count}")
     print(f"Missing packets: {missing_count}")
-    print(f"Duplicate packets: {duplicate_count}")
+    print(f"Duplicate packets: {metrics_dup_total}")
     print(f"Delivery rate: {delivery_rate:.2f}%")
-
-
-    if report_intervals_ms:
-        report_intervals_ms.sort()
-        mid = len(report_intervals_ms) // 2
-        if len(report_intervals_ms) % 2 == 1:
-            reporting_interval_ms = report_intervals_ms[mid]
-        else:
-            reporting_interval_ms = (report_intervals_ms[mid-1] + report_intervals_ms[mid]) / 2.0
-    else:
-        reporting_interval_ms = 0.0
-
-
-    # ADDED: write metrics.csv (append a single summary row per run)
-    MET_CSV = os.path.join(LOG_DIR, "metrics.csv")
-    metrics_row = [
-        metrics_packets,
-        (metrics_bytes / metrics_packets) if metrics_packets else 0.0,
-        (metrics_dup_total / metrics_packets) if metrics_packets else 0.0,
-        int(metrics_gap_total),
-        (metrics_cpu_ms / metrics_packets) if metrics_packets else 0.0,
-        reporting_interval_ms,  # PATCH: new column
-        time.strftime('%Y-%m-%d %H:%M:%S') # finished_at
-    ]
-    try:
-        # Append to existing metrics file (which was initialized at startup)
-        with open(MET_CSV, 'a', newline='') as f:
-            w = csv.writer(f)
-            # No header needed here, already written at init
-            w.writerow(metrics_row)
-        print(f"\nMetrics appended to: {MET_CSV}")
-        print(f"Reordered CSV (timestamp order) written to: {REORDER_CSV}")
-    except Exception as e:
-        print(f"Failed to write metrics.csv: {e}")
