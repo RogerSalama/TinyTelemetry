@@ -63,9 +63,8 @@ echo "Duration=${DURATION}s, Intervals=${INTERVALS}"
 # -----------------------------
 # Network configuration
 # -----------------------------
-DELAY_MS=2000
-JITTER_MS=200
-REORDER_PERCENT=70
+DELAY_MS=100
+JITTER_MS=10
 
 # Reset network first
 sudo tc qdisc del dev lo root 2>/dev/null || true
@@ -185,10 +184,9 @@ for run in {1..5}; do
     NETEM_LOG="$RUN_DIR/netem_config.txt"
     {
         echo "Network configuration for delay test run ${run}:"
-        echo "  sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms reorder ${REORDER_PERCENT}%"
+        echo "  sudo tc qdisc add dev lo root netem delay ${DELAY_MS}ms ${JITTER_MS}ms"
         echo "  Base delay: ${DELAY_MS}ms"
         echo "  Jitter: ±${JITTER_MS}ms"
-        echo "  Reordering: ${REORDER_PERCENT}% of packets"
         echo ""
         echo "Goal: Simulate one packet being significantly delayed"
         echo "Expected behavior: Packets may arrive out of order (e.g., 1,3,4,2)"
@@ -243,7 +241,7 @@ echo "========================================"
 echo "Delay+jitter test complete!"
 echo "Summary:"
 echo "- Completed 5 runs for devices: ${DEVICE_IDS[*]}"
-echo "- Network conditions: ${DELAY_MS}ms delay ±${JITTER_MS}ms with ${REORDER_PERCENT}% reordering"
+echo "- Network conditions: ${DELAY_MS}ms delay ±${JITTER_MS}ms"
 echo "- All data stored in logs/delay_run[1-5]/ directories"
 echo "- Check each run directory for detailed logs and CSV files"
 echo "========================================"

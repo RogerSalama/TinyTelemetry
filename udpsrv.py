@@ -20,7 +20,7 @@ server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server_socket.bind(('', SERVER_PORT))
 print(f"UDP Server running on port {SERVER_PORT} (max {MAX_BYTES} bytes)")
 
-NACK_DELAY_SECONDS = 0.35
+NACK_DELAY_SECONDS = 1
 nack_lock = threading.Lock()
 delayed_nack_requests = []
 

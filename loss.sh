@@ -5,17 +5,31 @@
 
 set -euo pipefail
 
+
+# --- Cleanup Function ---
+cleanup() {
+    echo "Cleaning up..."
+    # Kill background jobs
+    jobs -p | xargs -r kill 2>/dev/null || true
+    
+    # Reset network
+    sudo tc qdisc del dev lo root 2>/dev/null || true
+    
+    # Kill any stray udpsrv.py processes
+    # We use || true because pkill might return 1 (no process) or 127 (not found)
+    pkill -f udpsrv.py 2>/dev/null || true
+}
+trap cleanup EXIT
+
+# Kill any existing server instances before starting
+echo "Killing stale server instances..."
+pkill -f udpsrv.py 2>/dev/null || true
+
+
 mkdir -p logs
 
 # Reset network
-sudo tc qdisc del dev lo root 2>/dev/null || true
-
- SERVER_CSV="logs/iot_device_data.csv"
-
-# Apply 5% packet loss
-LOSS_PERCENT=5
-sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%
-echo " Applied ${LOSS_PERCENT}% packet loss on loopback"
+# sudo tc qdisc del dev lo root 2>/dev/null || true
 
 # Detect Python
 PYTHON=""
@@ -40,18 +54,24 @@ read -p "Enter intervals separated by commas [default: 1,5,30]: " INTERVALS
 INTERVALS=${INTERVALS:-1,5,30}
 IFS=',' read -r -a INTERVAL_ARRAY <<< "$INTERVALS"
 
-DEVICE_ID=1
-echo " Running loss scenario test for Device $DEVICE_ID (duration=${DURATION}s, intervals=${INTERVALS})"
-
-# Ask user for device IDs
 read -p "Enter device IDs separated by commas [default: 1]: " DEVICE_INPUT
-DEVICE_IDS=${DEVICE_INPUT:-1}
-IFS=',' read -r -a DEVICE_IDS <<< "$DEVICE_IDS"
+DEVICE_INPUT=${DEVICE_INPUT:-1}
+IFS=',' read -r -a DEVICE_IDS <<< "$DEVICE_INPUT"
 
+echo "Running loss test for devices: ${DEVICE_IDS[*]}"
+echo "Duration=${DURATION}s, Intervals=${INTERVALS}"
+
+
+# Apply 5% packet loss
+LOSS_PERCENT=5
+sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%
+echo "Applied network conditions:"
+echo " Loss Percent: ${LOSS_PERCENT}%"
 
 
 
 for i in {1..5}; do
+    echo ""
     echo "=== Loss test run $i ==="
 
     # Create per-run directory FIRST
@@ -59,14 +79,17 @@ for i in {1..5}; do
     mkdir -p "$RUN_DIR"
     chmod 777 "$RUN_DIR"
 
+    RUN_SERVER_CSV="$RUN_DIR/loss_run${i}.csv"
+    RUN_REORDERED_CSV="$RUN_DIR/loss_run${i}_reordered.csv"
+
     # Start PCAP capture
     PCAP_FILE="$RUN_DIR/loss_run${i}.pcap"
     sudo tcpdump -i lo udp port 12001 -w "$PCAP_FILE" &>/dev/null &
     PCAP_PID=$!
 
     # Remove previous server CSV to start fresh
-    SERVER_CSV=logs/iot_device_data.csv
-    rm -f "$SERVER_CSV"
+    # SERVER_CSV=logs/iot_device_data.csv
+    # rm -f "$SERVER_CSV"
 
     # Start server
     SERVER_LOG="$RUN_DIR/server.log"
@@ -75,45 +98,83 @@ for i in {1..5}; do
     sleep 1
 
     # Run client
-    CLIENT_LOG="$RUN_DIR/client.log"
-    set +e
-    $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1
-    CLIENT_EXIT=$?
-    set -e
-    if [ $CLIENT_EXIT -ne 0 ]; then
-        echo "Client crashed during run $i (exit code $CLIENT_EXIT)"
+    CLIENT_PIDS=()
+    CLIENT_LOGS=()
+    
+    echo "Starting clients for devices: ${DEVICE_IDS[*]}"
+    for DEVICE_ID in "${DEVICE_IDS[@]}"; do
+        CLIENT_LOG="$RUN_DIR/client_device${DEVICE_ID}.log"
+        echo "  Starting client for Device $DEVICE_ID..."
+        $PYTHON udpclnt.py "$DEVICE_ID" "$DURATION" "$INTERVALS" > "$CLIENT_LOG" 2>&1 &
+        CLIENT_PIDS+=($!)
+        CLIENT_LOGS+=("$CLIENT_LOG")
+    done
+
+    # Wait for all clients to finish
+    echo "Waiting for all clients to complete..."
+    for pid in "${CLIENT_PIDS[@]}"; do
+        wait $pid 2>/dev/null || true
+    done
+
+    # Give server time to process final packets
+    sleep 3
+
+    # Stop server
+    if kill -0 "$SERVER_PID" 2>/dev/null; then
+        kill "$SERVER_PID" 2>/dev/null || true
+        wait "$SERVER_PID" 2>/dev/null || true
     fi
 
-    # Create per-run directory
-    RUN_DIR="logs/loss_run${i}"
-    mkdir -p "$RUN_DIR"
-    chmod 777 "$RUN_DIR"
-
-    # Stop server & PCAP
-    kill "$SERVER_PID" 2>/dev/null || true
-    kill "$PCAP_PID" 2>/dev/null || true
+    # Stop PCAP capture
+    if kill -0 "$PCAP_PID" 2>/dev/null; then
+        sudo kill "$PCAP_PID" 2>/dev/null || true
+        wait "$PCAP_PID" 2>/dev/null || true
+    fi
 
 
-    # Save NetEm command to log (do not execute)
-    NETEM_LOG="$RUN_DIR/netem_loss_run${i}.txt"
-    echo "sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%" > "$NETEM_LOG"
-    echo "NetEm log saved: $NETEM_LOG"
+echo "PCAP saved: $PCAP_FILE"
 
-
-
-    # ---- Generate CSV for this run ----
-     CSV_FILE="$RUN_DIR/loss_run${i}.csv"
-    if [ -f "$SERVER_CSV" ]; then
-        cp "$SERVER_CSV" "$CSV_FILE"
-        chmod 666 "$CSV_FILE"
-        echo "CSV saved: $CSV_FILE"
+    # -------------------------
+    # Move CSV files to run directory
+    # -------------------------
+    if [ -f "logs/iot_device_data.csv" ]; then
+        mv "logs/iot_device_data.csv" "$RUN_SERVER_CSV"
+        echo "Raw CSV moved to: $RUN_SERVER_CSV"
     else
-        echo "Warning: CSV not found for run $i"
+        echo "Warning: No raw CSV data found for run $i"
     fi
+    
+    if [ -f "logs/iot_device_data_reordered.csv" ]; then
+        mv "logs/iot_device_data_reordered.csv" "$RUN_REORDERED_CSV"
+        echo "Reordered CSV moved to: $RUN_REORDERED_CSV"
+    else
+        echo "Warning: No reordered CSV data found for run $i"
+    fi
+
+    # Generate metrics CSV for this run
+    METRICS_FILE="$RUN_DIR/metrics_loss_run${i}.csv"
+    if [ -f logs/metrics.csv ]; then
+        cp logs/metrics.csv "$METRICS_FILE"
+        chmod 666 "$METRICS_FILE"
+        echo "Metrics CSV saved for run $i: $METRICS_FILE"
+    else
+        echo "Warning: logs/metrics.csv not found, skipping metrics copy."
+    fi
+
+    # -------------------------
+    # Save NetEm configuration
+    # -------------------------
+    NETEM_LOG="$RUN_DIR/netem_config.txt"
+    {
+        echo "Network configuration for delay test run ${i}:"
+        echo "  sudo tc qdisc add dev lo root netem loss ${LOSS_PERCENT}%"
+        echo "  Loss Percent: ${LOSS_PERCENT}%"
+        echo ""
+    } > "$NETEM_LOG"
 
     # ---- Packets per interval and sequence gaps/duplicates from client log ----
     echo " Device $DEVICE_ID: Packets and sequence info for run $i"
-   awk -v duration="$DURATION" -v intervals="$INTERVALS" '
+    awk -v duration="$DURATION" -v intervals="$INTERVALS" '
     BEGIN {
         split(intervals, intv_arr, ",")
         current_interval = -1
@@ -161,10 +222,16 @@ for i in {1..5}; do
         }
     }
     ' "$CLIENT_LOG"
-
-
 done
 
 # Reset network
 sudo tc qdisc del dev lo root 2>/dev/null || true
-echo " Loss test complete."
+echo ""
+echo "========================================"
+echo "Loss test complete!"
+echo "Summary:"
+echo "- Completed 5 runs for devices: ${DEVICE_IDS[*]}"
+echo "- Network conditions: ${LOSS_PERCENT}% loss"
+echo "- All data stored in logs/loss_run[1-5]/ directories"
+echo "- Check each run directory for detailed logs and CSV files"
+echo "========================================"
