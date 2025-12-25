@@ -1,4 +1,4 @@
 Network configuration for delay test run 1:
-  sudo tc qdisc add dev lo root netem loss 7%
-  Loss Percent: 7%
+  sudo tc qdisc add dev lo root netem loss 5%
+  Loss Percent: 5%
 

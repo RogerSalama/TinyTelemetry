@@ -1,0 +1,84 @@
+Sent INIT (Device=15, seq=1)
+Starting test for Device 15 with intervals [1, 15] (60s each)...
+
+--- Device 15: Running 1s interval for 60 seconds ---
+Sent DATA (ID=15, seq=2, count=10)
+Sent DATA (ID=15, seq=3, count=10)
+Sent DATA (ID=15, seq=4, count=10)
+Sent DATA (ID=15, seq=5, count=10)
+Sent DATA (ID=15, seq=6, count=10)
+Sent DATA (ID=15, seq=7, count=10)
+Sent DATA (ID=15, seq=8, count=10)
+Sent DATA (ID=15, seq=9, count=10)
+Sent DATA (ID=15, seq=10, count=10)
+Sent DATA (ID=15, seq=11, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=12, count=10)
+Sent DATA (ID=15, seq=13, count=10)
+Sent DATA (ID=15, seq=14, count=10)
+Sent DATA (ID=15, seq=15, count=10)
+Sent DATA (ID=15, seq=16, count=10)
+Sent DATA (ID=15, seq=17, count=10)
+Sent DATA (ID=15, seq=18, count=10)
+Sent DATA (ID=15, seq=19, count=10)
+Sent DATA (ID=15, seq=20, count=10)
+Sent DATA (ID=15, seq=21, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=22, count=10)
+Sent DATA (ID=15, seq=23, count=10)
+Sent DATA (ID=15, seq=24, count=10)
+Sent DATA (ID=15, seq=25, count=10)
+Sent DATA (ID=15, seq=26, count=10)
+Sent DATA (ID=15, seq=27, count=10)
+Sent DATA (ID=15, seq=28, count=10)
+Sent DATA (ID=15, seq=29, count=10)
+Sent DATA (ID=15, seq=30, count=10)
+Sent DATA (ID=15, seq=31, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=32, count=10)
+Sent DATA (ID=15, seq=33, count=10)
+Sent DATA (ID=15, seq=34, count=10)
+Sent DATA (ID=15, seq=35, count=10)
+Sent DATA (ID=15, seq=36, count=10)
+Sent DATA (ID=15, seq=37, count=10)
+Sent DATA (ID=15, seq=38, count=10)
+Sent DATA (ID=15, seq=39, count=10)
+Sent DATA (ID=15, seq=40, count=10)
+Sent DATA (ID=15, seq=41, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=42, count=10)
+Sent DATA (ID=15, seq=43, count=10)
+Sent DATA (ID=15, seq=44, count=10)
+Sent DATA (ID=15, seq=45, count=10)
+Sent DATA (ID=15, seq=46, count=10)
+Sent DATA (ID=15, seq=47, count=10)
+Sent DATA (ID=15, seq=48, count=10)
+Sent DATA (ID=15, seq=49, count=10)
+Sent DATA (ID=15, seq=50, count=10)
+Sent DATA (ID=15, seq=51, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=52, count=10)
+Sent DATA (ID=15, seq=53, count=10)
+Sent DATA (ID=15, seq=54, count=10)
+Sent DATA (ID=15, seq=55, count=10)
+Sent DATA (ID=15, seq=56, count=10)
+Sent DATA (ID=15, seq=57, count=10)
+Sent DATA (ID=15, seq=58, count=10)
+Sent DATA (ID=15, seq=59, count=10)
+Sent DATA (ID=15, seq=60, count=10)
+Sent DATA (ID=15, seq=61, count=10)
+Sent HEARTBEAT for Device 15
+
+--- Device 15: Running 15s interval for 60 seconds ---
+Sent DATA (ID=15, seq=62, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=63, count=10)
+Sent HEARTBEAT for Device 15
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=64, count=10)
+Sent HEARTBEAT for Device 15
+Sent DATA (ID=15, seq=65, count=10)
+Sent HEARTBEAT for Device 15
+Sent HEARTBEAT for Device 15
+Test finished. Closing client...
+Client finished.

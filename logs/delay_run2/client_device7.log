@@ -1,10 +1,13 @@
 Sent INIT (Device=7, seq=1)
-Starting test for Device 7 with intervals [1, 5, 30] (60s each)...
+Starting test for Device 7 with intervals [1, 9] (60s each)...
 
 --- Device 7: Running 1s interval for 60 seconds ---
 Sent DATA (ID=7, seq=2, count=10)
 Sent DATA (ID=7, seq=3, count=10)
 Sent DATA (ID=7, seq=4, count=10)
+
+ [!] Received NACK for Device 7, seq: 2
+ [>>] Retransmitting DATA seq=2
 Sent DATA (ID=7, seq=5, count=10)
 Sent DATA (ID=7, seq=6, count=10)
 Sent DATA (ID=7, seq=7, count=10)
@@ -34,8 +37,8 @@ Sent DATA (ID=7, seq=28, count=10)
 Sent DATA (ID=7, seq=29, count=10)
 Sent DATA (ID=7, seq=30, count=10)
 Sent DATA (ID=7, seq=31, count=10)
-Sent DATA (ID=7, seq=32, count=10)
 Sent HEARTBEAT for Device 7
+Sent DATA (ID=7, seq=32, count=10)
 Sent DATA (ID=7, seq=33, count=10)
 Sent DATA (ID=7, seq=34, count=10)
 Sent DATA (ID=7, seq=35, count=10)
@@ -45,8 +48,8 @@ Sent DATA (ID=7, seq=38, count=10)
 Sent DATA (ID=7, seq=39, count=10)
 Sent DATA (ID=7, seq=40, count=10)
 Sent DATA (ID=7, seq=41, count=10)
-Sent DATA (ID=7, seq=42, count=10)
 Sent HEARTBEAT for Device 7
+Sent DATA (ID=7, seq=42, count=10)
 Sent DATA (ID=7, seq=43, count=10)
 Sent DATA (ID=7, seq=44, count=10)
 Sent DATA (ID=7, seq=45, count=10)
@@ -56,8 +59,8 @@ Sent DATA (ID=7, seq=48, count=10)
 Sent DATA (ID=7, seq=49, count=10)
 Sent DATA (ID=7, seq=50, count=10)
 Sent DATA (ID=7, seq=51, count=10)
-Sent DATA (ID=7, seq=52, count=10)
 Sent HEARTBEAT for Device 7
+Sent DATA (ID=7, seq=52, count=10)
 Sent DATA (ID=7, seq=53, count=10)
 Sent DATA (ID=7, seq=54, count=10)
 Sent DATA (ID=7, seq=55, count=10)
@@ -69,34 +72,19 @@ Sent DATA (ID=7, seq=60, count=10)
 Sent DATA (ID=7, seq=61, count=10)
 Sent HEARTBEAT for Device 7
 
---- Device 7: Running 5s interval for 60 seconds ---
+--- Device 7: Running 9s interval for 60 seconds ---
 Sent DATA (ID=7, seq=62, count=10)
 Sent DATA (ID=7, seq=63, count=10)
 Sent HEARTBEAT for Device 7
 Sent DATA (ID=7, seq=64, count=10)
+Sent HEARTBEAT for Device 7
 Sent DATA (ID=7, seq=65, count=10)
 Sent HEARTBEAT for Device 7
 Sent DATA (ID=7, seq=66, count=10)
+Sent HEARTBEAT for Device 7
 Sent DATA (ID=7, seq=67, count=10)
 Sent HEARTBEAT for Device 7
 Sent DATA (ID=7, seq=68, count=10)
-Sent DATA (ID=7, seq=69, count=10)
-Sent HEARTBEAT for Device 7
-Sent DATA (ID=7, seq=70, count=10)
-Sent DATA (ID=7, seq=71, count=10)
-Sent HEARTBEAT for Device 7
-Sent DATA (ID=7, seq=72, count=10)
-Sent DATA (ID=7, seq=73, count=10)
-Sent HEARTBEAT for Device 7
-
---- Device 7: Running 30s interval for 60 seconds ---
-Sent DATA (ID=7, seq=74, count=10)
-Sent HEARTBEAT for Device 7
-Sent HEARTBEAT for Device 7
-Sent HEARTBEAT for Device 7
-Sent DATA (ID=7, seq=75, count=10)
-Sent HEARTBEAT for Device 7
-Sent HEARTBEAT for Device 7
 Sent HEARTBEAT for Device 7
 Test finished. Closing client...
 Client finished.

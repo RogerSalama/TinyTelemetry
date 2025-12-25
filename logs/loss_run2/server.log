@@ -5,82 +5,505 @@ Reordered CSV initialized: logs/iot_device_data_reordered.csv
 NACK Scheduler Thread started.
  -> INIT message from Device 1 (unit=fahrenheit)
  Data saved (ID:1, seq=1)
+ -> INIT message from Device 8 (unit=liters)
+ Data saved (ID:8, seq=1)
  Data saved (ID:1, seq=2)
  -> DATA received (ID:1, seq=2)
+ -> INIT message from Device 15 (unit=celsius)
+ Data saved (ID:15, seq=1)
+ Data saved (ID:15, seq=2)
+ -> DATA received (ID:15, seq=2)
+ Data saved (ID:8, seq=2)
+ -> DATA received (ID:8, seq=2)
  Data saved (ID:1, seq=3)
  -> DATA received (ID:1, seq=3)
+ Data saved (ID:8, seq=3)
+ -> DATA received (ID:8, seq=3)
+ Data saved (ID:15, seq=3)
+ -> DATA received (ID:15, seq=3)
  Data saved (ID:1, seq=4)
  -> DATA received (ID:1, seq=4)
- [~] Scheduled NACK for ID:1, seq: 5 at T + 1s
- Data saved (ID:1, seq=6)
- -> DATA received (ID:1, seq=6) with GAP.
- Data saved (ID:1, seq=7)
- -> DATA received (ID:1, seq=7)
- [<<] Sent NACK request for ID:1, seq: 5
- [+] Recovered packet ID:1, seq:5 (was missing).
+ Data saved (ID:8, seq=4)
+ -> DATA received (ID:8, seq=4)
+ Data saved (ID:15, seq=4)
+ -> DATA received (ID:15, seq=4)
  Data saved (ID:1, seq=5)
  -> DATA received (ID:1, seq=5)
+ Data saved (ID:8, seq=5)
+ -> DATA received (ID:8, seq=5)
+ Data saved (ID:15, seq=5)
+ -> DATA received (ID:15, seq=5)
+ Data saved (ID:1, seq=6)
+ -> DATA received (ID:1, seq=6)
+ Data saved (ID:8, seq=6)
+ -> DATA received (ID:8, seq=6)
+ Data saved (ID:15, seq=6)
+ -> DATA received (ID:15, seq=6)
+ Data saved (ID:1, seq=7)
+ -> DATA received (ID:1, seq=7)
+ Data saved (ID:8, seq=7)
+ -> DATA received (ID:8, seq=7)
+ Data saved (ID:15, seq=7)
+ -> DATA received (ID:15, seq=7)
  Data saved (ID:1, seq=8)
  -> DATA received (ID:1, seq=8)
+ Data saved (ID:8, seq=8)
+ -> DATA received (ID:8, seq=8)
+ Data saved (ID:15, seq=8)
+ -> DATA received (ID:15, seq=8)
  Data saved (ID:1, seq=9)
  -> DATA received (ID:1, seq=9)
+ Data saved (ID:8, seq=9)
+ -> DATA received (ID:8, seq=9)
+ Data saved (ID:15, seq=9)
+ -> DATA received (ID:15, seq=9)
  Data saved (ID:1, seq=10)
  -> DATA received (ID:1, seq=10)
-Heartbeat Received
- -> HEARTBEAT from Device 1
- Data saved (ID:1, seq=0)
- [~] Scheduled NACK for ID:1, seq: 11 at T + 1s
- Data saved (ID:1, seq=12)
- -> DATA received (ID:1, seq=12) with GAP.
- Data saved (ID:1, seq=13)
- -> DATA received (ID:1, seq=13)
- [<<] Sent NACK request for ID:1, seq: 11
- [+] Recovered packet ID:1, seq:11 (was missing).
+ Data saved (ID:8, seq=10)
+ -> DATA received (ID:8, seq=10)
+ Data saved (ID:15, seq=10)
+ -> DATA received (ID:15, seq=10)
  Data saved (ID:1, seq=11)
  -> DATA received (ID:1, seq=11)
- Data saved (ID:1, seq=14)
- -> DATA received (ID:1, seq=14)
- [~] Scheduled NACK for ID:1, seq: 15 at T + 1s
- Data saved (ID:1, seq=16)
- -> DATA received (ID:1, seq=16) with GAP.
- Data saved (ID:1, seq=17)
- -> DATA received (ID:1, seq=17)
- [<<] Sent NACK request for ID:1, seq: 15
- [+] Recovered packet ID:1, seq:15 (was missing).
- Data saved (ID:1, seq=15)
- -> DATA received (ID:1, seq=15)
- Data saved (ID:1, seq=18)
- -> DATA received (ID:1, seq=18)
- Data saved (ID:1, seq=19)
- -> DATA received (ID:1, seq=19)
- Data saved (ID:1, seq=20)
- -> DATA received (ID:1, seq=20)
- Data saved (ID:1, seq=21)
- -> DATA received (ID:1, seq=21)
+ Data saved (ID:15, seq=11)
+ -> DATA received (ID:15, seq=11)
 Heartbeat Received
  -> HEARTBEAT from Device 1
  Data saved (ID:1, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+ Data saved (ID:1, seq=12)
+ -> DATA received (ID:1, seq=12)
+ [~] Scheduled NACK for ID:8, seq: 11 at T + 1s
+ Data saved (ID:8, seq=12)
+ -> DATA received (ID:8, seq=12) with GAP.
+ Data saved (ID:15, seq=12)
+ -> DATA received (ID:15, seq=12)
+ Data saved (ID:1, seq=13)
+ -> DATA received (ID:1, seq=13)
+ Data saved (ID:8, seq=13)
+ -> DATA received (ID:8, seq=13)
+ Data saved (ID:15, seq=13)
+ -> DATA received (ID:15, seq=13)
+ [<<] Sent NACK request for ID:8, seq: 11
+ Data saved (ID:1, seq=14)
+ -> DATA received (ID:1, seq=14)
+ Data saved (ID:8, seq=14)
+ -> DATA received (ID:8, seq=14)
+ Data saved (ID:15, seq=14)
+ -> DATA received (ID:15, seq=14)
+ Data saved (ID:1, seq=15)
+ -> DATA received (ID:1, seq=15)
+ Data saved (ID:8, seq=15)
+ -> DATA received (ID:8, seq=15)
+ Data saved (ID:15, seq=15)
+ -> DATA received (ID:15, seq=15)
+ Data saved (ID:1, seq=16)
+ -> DATA received (ID:1, seq=16)
+ Data saved (ID:8, seq=16)
+ -> DATA received (ID:8, seq=16)
+ Data saved (ID:15, seq=16)
+ -> DATA received (ID:15, seq=16)
+ Data saved (ID:1, seq=17)
+ -> DATA received (ID:1, seq=17)
+ Data saved (ID:8, seq=17)
+ -> DATA received (ID:8, seq=17)
+ Data saved (ID:15, seq=17)
+ -> DATA received (ID:15, seq=17)
+ Data saved (ID:8, seq=18)
+ -> DATA received (ID:8, seq=18)
+ Data saved (ID:1, seq=18)
+ -> DATA received (ID:1, seq=18)
+ Data saved (ID:15, seq=18)
+ -> DATA received (ID:15, seq=18)
+ Data saved (ID:8, seq=19)
+ -> DATA received (ID:8, seq=19)
+ Data saved (ID:15, seq=19)
+ -> DATA received (ID:15, seq=19)
+ Data saved (ID:1, seq=19)
+ -> DATA received (ID:1, seq=19)
+ Data saved (ID:8, seq=20)
+ -> DATA received (ID:8, seq=20)
+ Data saved (ID:15, seq=20)
+ -> DATA received (ID:15, seq=20)
+ Data saved (ID:15, seq=21)
+ -> DATA received (ID:15, seq=21)
+ [~] Scheduled NACK for ID:1, seq: 20 at T + 1s
+ Data saved (ID:1, seq=21)
+ -> DATA received (ID:1, seq=21) with GAP.
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ [~] Scheduled NACK for ID:8, seq: 21 at T + 1s
+ Data saved (ID:8, seq=22)
+ -> DATA received (ID:8, seq=22) with GAP.
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+ Data saved (ID:15, seq=22)
+ -> DATA received (ID:15, seq=22)
+ [<<] Sent NACK request for ID:1, seq: 20
  Data saved (ID:1, seq=22)
  -> DATA received (ID:1, seq=22)
- [~] Scheduled NACK for ID:1, seq: 23 at T + 1s
- Data saved (ID:1, seq=24)
- -> DATA received (ID:1, seq=24) with GAP.
- Data saved (ID:1, seq=25)
- -> DATA received (ID:1, seq=25)
- [<<] Sent NACK request for ID:1, seq: 23
- [+] Recovered packet ID:1, seq:23 (was missing).
+ [+] Recovered packet ID:1, seq:20 (was missing).
+ Data saved (ID:1, seq=20)
+ -> DATA received (ID:1, seq=20)
+ Data saved (ID:8, seq=23)
+ -> DATA received (ID:8, seq=23)
+ Data saved (ID:15, seq=23)
+ -> DATA received (ID:15, seq=23)
  Data saved (ID:1, seq=23)
  -> DATA received (ID:1, seq=23)
+ [<<] Sent NACK request for ID:8, seq: 21
+ [+] Recovered packet ID:8, seq:21 (was missing).
+ Data saved (ID:8, seq=21)
+ -> DATA received (ID:8, seq=21)
+ Data saved (ID:8, seq=24)
+ -> DATA received (ID:8, seq=24)
+ Data saved (ID:15, seq=24)
+ -> DATA received (ID:15, seq=24)
+ Data saved (ID:1, seq=24)
+ -> DATA received (ID:1, seq=24)
+ Data saved (ID:8, seq=25)
+ -> DATA received (ID:8, seq=25)
+ Data saved (ID:15, seq=25)
+ -> DATA received (ID:15, seq=25)
+ Data saved (ID:1, seq=25)
+ -> DATA received (ID:1, seq=25)
+ Data saved (ID:8, seq=26)
+ -> DATA received (ID:8, seq=26)
+ Data saved (ID:15, seq=26)
+ -> DATA received (ID:15, seq=26)
  Data saved (ID:1, seq=26)
  -> DATA received (ID:1, seq=26)
+ Data saved (ID:8, seq=27)
+ -> DATA received (ID:8, seq=27)
+ Data saved (ID:15, seq=27)
+ -> DATA received (ID:15, seq=27)
  Data saved (ID:1, seq=27)
  -> DATA received (ID:1, seq=27)
+ Data saved (ID:15, seq=28)
+ -> DATA received (ID:15, seq=28)
  Data saved (ID:1, seq=28)
  -> DATA received (ID:1, seq=28)
+ [~] Scheduled NACK for ID:8, seq: 28 at T + 1s
+ Data saved (ID:8, seq=29)
+ -> DATA received (ID:8, seq=29) with GAP.
+ Data saved (ID:15, seq=29)
+ -> DATA received (ID:15, seq=29)
  Data saved (ID:1, seq=29)
  -> DATA received (ID:1, seq=29)
+ Data saved (ID:8, seq=30)
+ -> DATA received (ID:8, seq=30)
+ Data saved (ID:15, seq=30)
+ -> DATA received (ID:15, seq=30)
  Data saved (ID:1, seq=30)
  -> DATA received (ID:1, seq=30)
+ [<<] Sent NACK request for ID:8, seq: 28
+ [+] Recovered packet ID:8, seq:28 (was missing).
+ Data saved (ID:8, seq=28)
+ -> DATA received (ID:8, seq=28)
+ Data saved (ID:8, seq=31)
+ -> DATA received (ID:8, seq=31)
+ Data saved (ID:15, seq=31)
+ -> DATA received (ID:15, seq=31)
+ Data saved (ID:1, seq=31)
+ -> DATA received (ID:1, seq=31)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+ Data saved (ID:8, seq=32)
+ -> DATA received (ID:8, seq=32)
+ Data saved (ID:15, seq=32)
+ -> DATA received (ID:15, seq=32)
+ Data saved (ID:1, seq=32)
+ -> DATA received (ID:1, seq=32)
+ Data saved (ID:8, seq=33)
+ -> DATA received (ID:8, seq=33)
+ Data saved (ID:15, seq=33)
+ -> DATA received (ID:15, seq=33)
+ Data saved (ID:1, seq=33)
+ -> DATA received (ID:1, seq=33)
+ Data saved (ID:8, seq=34)
+ -> DATA received (ID:8, seq=34)
+ Data saved (ID:15, seq=34)
+ -> DATA received (ID:15, seq=34)
+ Data saved (ID:1, seq=34)
+ -> DATA received (ID:1, seq=34)
+ Data saved (ID:8, seq=35)
+ -> DATA received (ID:8, seq=35)
+ Data saved (ID:15, seq=35)
+ -> DATA received (ID:15, seq=35)
+ Data saved (ID:1, seq=35)
+ -> DATA received (ID:1, seq=35)
+ Data saved (ID:8, seq=36)
+ -> DATA received (ID:8, seq=36)
+ Data saved (ID:1, seq=36)
+ -> DATA received (ID:1, seq=36)
+ Data saved (ID:15, seq=36)
+ -> DATA received (ID:15, seq=36)
+ Data saved (ID:8, seq=37)
+ -> DATA received (ID:8, seq=37)
+ Data saved (ID:15, seq=37)
+ -> DATA received (ID:15, seq=37)
+ Data saved (ID:1, seq=37)
+ -> DATA received (ID:1, seq=37)
+ Data saved (ID:8, seq=38)
+ -> DATA received (ID:8, seq=38)
+ Data saved (ID:15, seq=38)
+ -> DATA received (ID:15, seq=38)
+ Data saved (ID:1, seq=38)
+ -> DATA received (ID:1, seq=38)
+ Data saved (ID:8, seq=39)
+ -> DATA received (ID:8, seq=39)
+ Data saved (ID:15, seq=39)
+ -> DATA received (ID:15, seq=39)
+ Data saved (ID:1, seq=39)
+ -> DATA received (ID:1, seq=39)
+ Data saved (ID:8, seq=40)
+ -> DATA received (ID:8, seq=40)
+ Data saved (ID:15, seq=40)
+ -> DATA received (ID:15, seq=40)
+ Data saved (ID:1, seq=40)
+ -> DATA received (ID:1, seq=40)
+ Data saved (ID:8, seq=41)
+ -> DATA received (ID:8, seq=41)
+ Data saved (ID:15, seq=41)
+ -> DATA received (ID:15, seq=41)
+ Data saved (ID:1, seq=41)
+ -> DATA received (ID:1, seq=41)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:8, seq=42)
+ -> DATA received (ID:8, seq=42)
+ Data saved (ID:15, seq=42)
+ -> DATA received (ID:15, seq=42)
+ Data saved (ID:1, seq=42)
+ -> DATA received (ID:1, seq=42)
+ Data saved (ID:8, seq=43)
+ -> DATA received (ID:8, seq=43)
+ Data saved (ID:15, seq=43)
+ -> DATA received (ID:15, seq=43)
+ Data saved (ID:1, seq=43)
+ -> DATA received (ID:1, seq=43)
+ Data saved (ID:8, seq=44)
+ -> DATA received (ID:8, seq=44)
+ Data saved (ID:15, seq=44)
+ -> DATA received (ID:15, seq=44)
+ Data saved (ID:1, seq=44)
+ -> DATA received (ID:1, seq=44)
+ Data saved (ID:8, seq=45)
+ -> DATA received (ID:8, seq=45)
+ Data saved (ID:15, seq=45)
+ -> DATA received (ID:15, seq=45)
+ Data saved (ID:1, seq=45)
+ -> DATA received (ID:1, seq=45)
+ Data saved (ID:8, seq=46)
+ -> DATA received (ID:8, seq=46)
+ Data saved (ID:15, seq=46)
+ -> DATA received (ID:15, seq=46)
+ Data saved (ID:1, seq=46)
+ -> DATA received (ID:1, seq=46)
+ Data saved (ID:8, seq=47)
+ -> DATA received (ID:8, seq=47)
+ Data saved (ID:15, seq=47)
+ -> DATA received (ID:15, seq=47)
+ Data saved (ID:1, seq=47)
+ -> DATA received (ID:1, seq=47)
+ Data saved (ID:8, seq=48)
+ -> DATA received (ID:8, seq=48)
+ Data saved (ID:15, seq=48)
+ -> DATA received (ID:15, seq=48)
+ Data saved (ID:1, seq=48)
+ -> DATA received (ID:1, seq=48)
+ Data saved (ID:8, seq=49)
+ -> DATA received (ID:8, seq=49)
+ Data saved (ID:15, seq=49)
+ -> DATA received (ID:15, seq=49)
+ Data saved (ID:8, seq=50)
+ -> DATA received (ID:8, seq=50)
+ Data saved (ID:15, seq=50)
+ -> DATA received (ID:15, seq=50)
+ [~] Scheduled NACK for ID:1, seq: 49 at T + 1s
+ Data saved (ID:1, seq=50)
+ -> DATA received (ID:1, seq=50) with GAP.
+ Data saved (ID:8, seq=51)
+ -> DATA received (ID:8, seq=51)
+ Data saved (ID:15, seq=51)
+ -> DATA received (ID:15, seq=51)
+ Data saved (ID:1, seq=51)
+ -> DATA received (ID:1, seq=51)
+ [<<] Sent NACK request for ID:1, seq: 49
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:1, seq=52)
+ -> DATA received (ID:1, seq=52)
+ Data saved (ID:8, seq=52)
+ -> DATA received (ID:8, seq=52)
+ Data saved (ID:15, seq=52)
+ -> DATA received (ID:15, seq=52)
+ Data saved (ID:1, seq=53)
+ -> DATA received (ID:1, seq=53)
+ Data saved (ID:15, seq=53)
+ -> DATA received (ID:15, seq=53)
+ Data saved (ID:8, seq=53)
+ -> DATA received (ID:8, seq=53)
+ Data saved (ID:1, seq=54)
+ -> DATA received (ID:1, seq=54)
+ Data saved (ID:15, seq=54)
+ -> DATA received (ID:15, seq=54)
+ Data saved (ID:8, seq=54)
+ -> DATA received (ID:8, seq=54)
+ Data saved (ID:15, seq=55)
+ -> DATA received (ID:15, seq=55)
+ Data saved (ID:1, seq=55)
+ -> DATA received (ID:1, seq=55)
+ Data saved (ID:8, seq=55)
+ -> DATA received (ID:8, seq=55)
+ Data saved (ID:1, seq=56)
+ -> DATA received (ID:1, seq=56)
+ Data saved (ID:15, seq=56)
+ -> DATA received (ID:15, seq=56)
+ Data saved (ID:8, seq=56)
+ -> DATA received (ID:8, seq=56)
+ Data saved (ID:1, seq=57)
+ -> DATA received (ID:1, seq=57)
+ Data saved (ID:15, seq=57)
+ -> DATA received (ID:15, seq=57)
+ Data saved (ID:8, seq=57)
+ -> DATA received (ID:8, seq=57)
+ Data saved (ID:15, seq=58)
+ -> DATA received (ID:15, seq=58)
+ Data saved (ID:1, seq=58)
+ -> DATA received (ID:1, seq=58)
+ Data saved (ID:15, seq=59)
+ -> DATA received (ID:15, seq=59)
+ Data saved (ID:1, seq=59)
+ -> DATA received (ID:1, seq=59)
+ [~] Scheduled NACK for ID:8, seq: 58 at T + 1s
+ Data saved (ID:8, seq=59)
+ -> DATA received (ID:8, seq=59) with GAP.
+ Data saved (ID:15, seq=60)
+ -> DATA received (ID:15, seq=60)
+ [<<] Sent NACK request for ID:8, seq: 58
+ Data saved (ID:1, seq=60)
+ -> DATA received (ID:1, seq=60)
+ Data saved (ID:8, seq=60)
+ -> DATA received (ID:8, seq=60)
+ [+] Recovered packet ID:8, seq:58 (was missing).
+ Data saved (ID:8, seq=58)
+ -> DATA received (ID:8, seq=58)
+ Data saved (ID:15, seq=61)
+ -> DATA received (ID:15, seq=61)
+ Data saved (ID:1, seq=61)
+ -> DATA received (ID:1, seq=61)
+ Data saved (ID:8, seq=61)
+ -> DATA received (ID:8, seq=61)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:15, seq=62)
+ -> DATA received (ID:15, seq=62)
+ Data saved (ID:1, seq=62)
+ -> DATA received (ID:1, seq=62)
+ Data saved (ID:8, seq=62)
+ -> DATA received (ID:8, seq=62)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:15, seq=63)
+ -> DATA received (ID:15, seq=63)
+ Data saved (ID:1, seq=63)
+ -> DATA received (ID:1, seq=63)
+ Data saved (ID:8, seq=63)
+ -> DATA received (ID:8, seq=63)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:15, seq=64)
+ -> DATA received (ID:15, seq=64)
+ Data saved (ID:1, seq=64)
+ -> DATA received (ID:1, seq=64)
+ Data saved (ID:8, seq=64)
+ -> DATA received (ID:8, seq=64)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:15, seq=65)
+ -> DATA received (ID:15, seq=65)
+ Data saved (ID:1, seq=65)
+ -> DATA received (ID:1, seq=65)
+ Data saved (ID:8, seq=65)
+ -> DATA received (ID:8, seq=65)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 8
+ Data saved (ID:8, seq=0)
+Heartbeat Received
+ -> HEARTBEAT from Device 15
+ Data saved (ID:15, seq=0)
 Heartbeat Received
  -> HEARTBEAT from Device 1
  Data saved (ID:1, seq=0)

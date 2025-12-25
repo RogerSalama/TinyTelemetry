@@ -1,5 +1,5 @@
 Sent INIT (Device=4, seq=1)
-Starting test for Device 4 with intervals [1, 5, 30] (60s each)...
+Starting test for Device 4 with intervals [1, 9] (60s each)...
 
 --- Device 4: Running 1s interval for 60 seconds ---
 Sent DATA (ID=4, seq=2, count=10)
@@ -72,34 +72,19 @@ Sent DATA (ID=4, seq=60, count=10)
 Sent DATA (ID=4, seq=61, count=10)
 Sent HEARTBEAT for Device 4
 
---- Device 4: Running 5s interval for 60 seconds ---
+--- Device 4: Running 9s interval for 60 seconds ---
 Sent DATA (ID=4, seq=62, count=10)
 Sent DATA (ID=4, seq=63, count=10)
 Sent HEARTBEAT for Device 4
 Sent DATA (ID=4, seq=64, count=10)
+Sent HEARTBEAT for Device 4
 Sent DATA (ID=4, seq=65, count=10)
 Sent HEARTBEAT for Device 4
 Sent DATA (ID=4, seq=66, count=10)
+Sent HEARTBEAT for Device 4
 Sent DATA (ID=4, seq=67, count=10)
 Sent HEARTBEAT for Device 4
 Sent DATA (ID=4, seq=68, count=10)
-Sent DATA (ID=4, seq=69, count=10)
-Sent HEARTBEAT for Device 4
-Sent DATA (ID=4, seq=70, count=10)
-Sent DATA (ID=4, seq=71, count=10)
-Sent HEARTBEAT for Device 4
-Sent DATA (ID=4, seq=72, count=10)
-Sent DATA (ID=4, seq=73, count=10)
-Sent HEARTBEAT for Device 4
-
---- Device 4: Running 30s interval for 60 seconds ---
-Sent DATA (ID=4, seq=74, count=10)
-Sent HEARTBEAT for Device 4
-Sent HEARTBEAT for Device 4
-Sent HEARTBEAT for Device 4
-Sent DATA (ID=4, seq=75, count=10)
-Sent HEARTBEAT for Device 4
-Sent HEARTBEAT for Device 4
 Sent HEARTBEAT for Device 4
 Test finished. Closing client...
 Client finished.

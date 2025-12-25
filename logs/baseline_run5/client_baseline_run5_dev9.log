@@ -12,8 +12,8 @@ Sent DATA (ID=9, seq=8, count=10)
 Sent DATA (ID=9, seq=9, count=10)
 Sent DATA (ID=9, seq=10, count=10)
 Sent DATA (ID=9, seq=11, count=10)
-Sent HEARTBEAT for Device 9
 Sent DATA (ID=9, seq=12, count=10)
+Sent HEARTBEAT for Device 9
 Sent DATA (ID=9, seq=13, count=10)
 Sent DATA (ID=9, seq=14, count=10)
 Sent DATA (ID=9, seq=15, count=10)
@@ -66,10 +66,10 @@ Sent DATA (ID=9, seq=57, count=10)
 Sent DATA (ID=9, seq=58, count=10)
 Sent DATA (ID=9, seq=59, count=10)
 Sent DATA (ID=9, seq=60, count=10)
-
---- Device 9: Running 5s interval for 60 seconds ---
 Sent DATA (ID=9, seq=61, count=10)
 Sent HEARTBEAT for Device 9
+
+--- Device 9: Running 5s interval for 60 seconds ---
 Sent DATA (ID=9, seq=62, count=10)
 Sent DATA (ID=9, seq=63, count=10)
 Sent HEARTBEAT for Device 9
@@ -86,13 +86,15 @@ Sent DATA (ID=9, seq=70, count=10)
 Sent DATA (ID=9, seq=71, count=10)
 Sent HEARTBEAT for Device 9
 Sent DATA (ID=9, seq=72, count=10)
-
---- Device 9: Running 30s interval for 60 seconds ---
 Sent DATA (ID=9, seq=73, count=10)
 Sent HEARTBEAT for Device 9
-Sent HEARTBEAT for Device 9
-Sent HEARTBEAT for Device 9
+
+--- Device 9: Running 30s interval for 60 seconds ---
 Sent DATA (ID=9, seq=74, count=10)
+Sent HEARTBEAT for Device 9
+Sent HEARTBEAT for Device 9
+Sent HEARTBEAT for Device 9
+Sent DATA (ID=9, seq=75, count=10)
 Sent HEARTBEAT for Device 9
 Sent HEARTBEAT for Device 9
 Sent HEARTBEAT for Device 9
