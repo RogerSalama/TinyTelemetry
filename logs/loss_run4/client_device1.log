@@ -1,0 +1,42 @@
+Sent INIT (Device=1, seq=1)
+Starting test for Device 1 with intervals [1] (30s each)...
+
+--- Device 1: Running 1s interval for 30 seconds ---
+Sent DATA (ID=1, seq=2, count=10)
+Sent DATA (ID=1, seq=3, count=10)
+Sent DATA (ID=1, seq=4, count=10)
+Sent DATA (ID=1, seq=5, count=10)
+Sent DATA (ID=1, seq=6, count=10)
+Sent DATA (ID=1, seq=7, count=10)
+Sent DATA (ID=1, seq=8, count=10)
+Sent DATA (ID=1, seq=9, count=10)
+Sent DATA (ID=1, seq=10, count=10)
+Sent DATA (ID=1, seq=11, count=10)
+Sent DATA (ID=1, seq=12, count=10)
+Sent HEARTBEAT for Device 1
+Sent DATA (ID=1, seq=13, count=10)
+Sent DATA (ID=1, seq=14, count=10)
+Sent DATA (ID=1, seq=15, count=10)
+Sent DATA (ID=1, seq=16, count=10)
+Sent DATA (ID=1, seq=17, count=10)
+Sent DATA (ID=1, seq=18, count=10)
+
+ [!] Received NACK for Device 1, seq: 16
+ [>>] Retransmitting DATA seq=16
+Sent DATA (ID=1, seq=19, count=10)
+Sent DATA (ID=1, seq=20, count=10)
+Sent DATA (ID=1, seq=21, count=10)
+Sent HEARTBEAT for Device 1
+Sent DATA (ID=1, seq=22, count=10)
+Sent DATA (ID=1, seq=23, count=10)
+Sent DATA (ID=1, seq=24, count=10)
+Sent DATA (ID=1, seq=25, count=10)
+Sent DATA (ID=1, seq=26, count=10)
+Sent DATA (ID=1, seq=27, count=10)
+Sent DATA (ID=1, seq=28, count=10)
+Sent DATA (ID=1, seq=29, count=10)
+Sent DATA (ID=1, seq=30, count=10)
+Sent DATA (ID=1, seq=31, count=10)
+Sent HEARTBEAT for Device 1
+Test finished. Closing client...
+Client finished.

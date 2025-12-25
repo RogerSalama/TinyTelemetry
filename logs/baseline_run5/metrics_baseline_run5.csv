@@ -1,0 +1,2 @@
+packets_received,bytes_per_report,duplicate_rate,sequence_gap_count,cpu_ms_per_report,reporting_interval_ms,finished_at
+219,51.45662100456621,0.0,0,0.08788755250402967,1001.0,2025-12-25 01:15:28

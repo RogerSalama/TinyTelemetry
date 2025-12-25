@@ -315,7 +315,7 @@ metrics_bytes = 0
 metrics_cpu_ms = 0.0
 metrics_dup_total = 0
 metrics_gap_total = 0
-_reorder = _ReorderBuffer(guard_ms=150, max_buffer_ms=1000)  # ADDED
+_reorder = _ReorderBuffer(guard_ms=10000, max_buffer_ms=10000)  # ADDED
 def _now_ms():  # ADDED
     return int(time.time() * 1000)
 

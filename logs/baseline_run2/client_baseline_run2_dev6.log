@@ -1,47 +1,102 @@
-Sent INIT (Device=6, seq=1, unit=watts)
-Starting test for Device 6 with intervals [1] (10s each)...
+Sent INIT (Device=6, seq=1)
+Starting test for Device 6 with intervals [1, 5, 30] (60s each)...
 
---- Device 6: Running 1s interval for 10 seconds ---
-payload before encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
-payload after encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
-Payload size: 9 bytes (expected: 9)
-Sent DATA (Device=6, seq=2, interval=1s, batch=['10.0', '10.5'])
-payload before encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
-payload after encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
-Payload size: 13 bytes (expected: 13)
-Sent DATA (Device=6, seq=3, interval=1s, batch=['9.8', '9.9', '10.1'])
-payload before encryption:b'\x00\x00\xa7\xd8\xc0'
-payload after encryption:b'\x00\x00\xa7\xd8\xc0'
-Payload size: 5 bytes (expected: 5)
-Sent DATA (Device=6, seq=4, interval=1s, batch=['11.0'])
-payload before encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
-payload after encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
-Payload size: 21 bytes (expected: 21)
-Sent DATA (Device=6, seq=5, interval=1s, batch=['10.2', '10.3', '10.4', '10.5', '10.6'])
-payload before encryption:b'\x00\x00\x94\x02\xa0'
-payload after encryption:b'\x00\x00\x94\x02\xa0'
-Payload size: 5 bytes (expected: 5)
-Sent DATA (Device=6, seq=6, interval=1s, batch=['9.7'])
-payload before encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
-payload after encryption:b'\x00\x00\x98\x96\x80\x00\xa07\xa0'
-Payload size: 9 bytes (expected: 9)
-Sent DATA (Device=6, seq=7, interval=1s, batch=['10.0', '10.5'])
-payload before encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
-payload after encryption:b'\x00\x00\x95\x89@\x00\x97\x0f\xe0\x00\x9a\x1d '
-Payload size: 13 bytes (expected: 13)
-Sent DATA (Device=6, seq=8, interval=1s, batch=['9.8', '9.9', '10.1'])
-payload before encryption:b'\x00\x00\xa7\xd8\xc0'
-payload after encryption:b'\x00\x00\xa7\xd8\xc0'
-Payload size: 5 bytes (expected: 5)
-Sent DATA (Device=6, seq=9, interval=1s, batch=['11.0'])
-payload before encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
-payload after encryption:b'\x00\x00\x9b\xa3\xc0\x00\x9d*`\x00\x9e\xb1\x00\x00\xa07\xa0\x00\xa1\xbe@'
-Payload size: 21 bytes (expected: 21)
-Sent DATA (Device=6, seq=10, interval=1s, batch=['10.2', '10.3', '10.4', '10.5', '10.6'])
-payload before encryption:b'\x00\x00\x94\x02\xa0'
-payload after encryption:b'\x00\x00\x94\x02\xa0'
-Payload size: 5 bytes (expected: 5)
-Sent DATA (Device=6, seq=11, interval=1s, batch=['9.7'])
+--- Device 6: Running 1s interval for 60 seconds ---
+Sent DATA (ID=6, seq=2, count=10)
+Sent DATA (ID=6, seq=3, count=10)
+Sent DATA (ID=6, seq=4, count=10)
+Sent DATA (ID=6, seq=5, count=10)
+Sent DATA (ID=6, seq=6, count=10)
+Sent DATA (ID=6, seq=7, count=10)
+Sent DATA (ID=6, seq=8, count=10)
+Sent DATA (ID=6, seq=9, count=10)
+Sent DATA (ID=6, seq=10, count=10)
+Sent DATA (ID=6, seq=11, count=10)
+Sent DATA (ID=6, seq=12, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=13, count=10)
+Sent DATA (ID=6, seq=14, count=10)
+Sent DATA (ID=6, seq=15, count=10)
+Sent DATA (ID=6, seq=16, count=10)
+Sent DATA (ID=6, seq=17, count=10)
+Sent DATA (ID=6, seq=18, count=10)
+Sent DATA (ID=6, seq=19, count=10)
+Sent DATA (ID=6, seq=20, count=10)
+Sent DATA (ID=6, seq=21, count=10)
+Sent DATA (ID=6, seq=22, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=23, count=10)
+Sent DATA (ID=6, seq=24, count=10)
+Sent DATA (ID=6, seq=25, count=10)
+Sent DATA (ID=6, seq=26, count=10)
+Sent DATA (ID=6, seq=27, count=10)
+Sent DATA (ID=6, seq=28, count=10)
+Sent DATA (ID=6, seq=29, count=10)
+Sent DATA (ID=6, seq=30, count=10)
+Sent DATA (ID=6, seq=31, count=10)
+Sent DATA (ID=6, seq=32, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=33, count=10)
+Sent DATA (ID=6, seq=34, count=10)
+Sent DATA (ID=6, seq=35, count=10)
+Sent DATA (ID=6, seq=36, count=10)
+Sent DATA (ID=6, seq=37, count=10)
+Sent DATA (ID=6, seq=38, count=10)
+Sent DATA (ID=6, seq=39, count=10)
+Sent DATA (ID=6, seq=40, count=10)
+Sent DATA (ID=6, seq=41, count=10)
+Sent DATA (ID=6, seq=42, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=43, count=10)
+Sent DATA (ID=6, seq=44, count=10)
+Sent DATA (ID=6, seq=45, count=10)
+Sent DATA (ID=6, seq=46, count=10)
+Sent DATA (ID=6, seq=47, count=10)
+Sent DATA (ID=6, seq=48, count=10)
+Sent DATA (ID=6, seq=49, count=10)
+Sent DATA (ID=6, seq=50, count=10)
+Sent DATA (ID=6, seq=51, count=10)
+Sent DATA (ID=6, seq=52, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=53, count=10)
+Sent DATA (ID=6, seq=54, count=10)
+Sent DATA (ID=6, seq=55, count=10)
+Sent DATA (ID=6, seq=56, count=10)
+Sent DATA (ID=6, seq=57, count=10)
+Sent DATA (ID=6, seq=58, count=10)
+Sent DATA (ID=6, seq=59, count=10)
+Sent DATA (ID=6, seq=60, count=10)
+Sent DATA (ID=6, seq=61, count=10)
+
+--- Device 6: Running 5s interval for 60 seconds ---
+Sent DATA (ID=6, seq=62, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=63, count=10)
+Sent DATA (ID=6, seq=64, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=65, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=66, count=10)
+Sent DATA (ID=6, seq=67, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=68, count=10)
+Sent DATA (ID=6, seq=69, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=70, count=10)
+Sent DATA (ID=6, seq=71, count=10)
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=72, count=10)
+Sent DATA (ID=6, seq=73, count=10)
+Sent HEARTBEAT for Device 6
+
+--- Device 6: Running 30s interval for 60 seconds ---
+Sent DATA (ID=6, seq=74, count=10)
+Sent HEARTBEAT for Device 6
+Sent HEARTBEAT for Device 6
+Sent HEARTBEAT for Device 6
+Sent DATA (ID=6, seq=75, count=10)
+Sent HEARTBEAT for Device 6
+Sent HEARTBEAT for Device 6
 Sent HEARTBEAT for Device 6
 Test finished. Closing client...
 Client finished.

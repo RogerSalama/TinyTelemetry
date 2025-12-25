@@ -1,5 +1,7 @@
 UDP Server running on port 12001 (max 200 bytes)
-CSV initialized with headers (file: logs/iot_device_data.csv)
+CSV initialized (truncated) at: logs/iot_device_data.csv
+Metrics CSV initialized (truncated) at: logs/metrics.csv
+Reordered CSV initialized: logs/iot_device_data_reordered.csv
 NACK Scheduler Thread started.
  -> INIT message from Device 1 (unit=fahrenheit)
  Data saved (ID:1, seq=1)
@@ -23,11 +25,58 @@ NACK Scheduler Thread started.
  -> DATA received (ID:1, seq=10)
  Data saved (ID:1, seq=11)
  -> DATA received (ID:1, seq=11)
-Heartbeat Received
- -> HEARTBEAT from Device 1
- Data saved (ID:1, seq=0)
  Data saved (ID:1, seq=12)
  -> DATA received (ID:1, seq=12)
 Heartbeat Received
  -> HEARTBEAT from Device 1
  Data saved (ID:1, seq=0)
+ Data saved (ID:1, seq=13)
+ -> DATA received (ID:1, seq=13)
+ Data saved (ID:1, seq=14)
+ -> DATA received (ID:1, seq=14)
+ Data saved (ID:1, seq=15)
+ -> DATA received (ID:1, seq=15)
+ [~] Scheduled NACK for ID:1, seq: 16 at T + 1s
+ Data saved (ID:1, seq=17)
+ -> DATA received (ID:1, seq=17) with GAP.
+ Data saved (ID:1, seq=18)
+ -> DATA received (ID:1, seq=18)
+ [<<] Sent NACK request for ID:1, seq: 16
+ [+] Recovered packet ID:1, seq:16 (was missing).
+ Data saved (ID:1, seq=16)
+ -> DATA received (ID:1, seq=16)
+ Data saved (ID:1, seq=19)
+ -> DATA received (ID:1, seq=19)
+ Data saved (ID:1, seq=20)
+ -> DATA received (ID:1, seq=20)
+ Data saved (ID:1, seq=21)
+ -> DATA received (ID:1, seq=21)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+ Data saved (ID:1, seq=22)
+ -> DATA received (ID:1, seq=22)
+ Data saved (ID:1, seq=23)
+ -> DATA received (ID:1, seq=23)
+ Data saved (ID:1, seq=24)
+ -> DATA received (ID:1, seq=24)
+ Data saved (ID:1, seq=25)
+ -> DATA received (ID:1, seq=25)
+ Data saved (ID:1, seq=26)
+ -> DATA received (ID:1, seq=26)
+ Data saved (ID:1, seq=27)
+ -> DATA received (ID:1, seq=27)
+ Data saved (ID:1, seq=28)
+ -> DATA received (ID:1, seq=28)
+ Data saved (ID:1, seq=29)
+ -> DATA received (ID:1, seq=29)
+ Data saved (ID:1, seq=30)
+ -> DATA received (ID:1, seq=30)
+ Data saved (ID:1, seq=31)
+ -> DATA received (ID:1, seq=31)
+Heartbeat Received
+ -> HEARTBEAT from Device 1
+ Data saved (ID:1, seq=0)
+
+[Shutdown] Signal 15 received — flushing reorder buffer
+[Shutdown] Reordered CSV finalized: logs/iot_device_data_reordered.csv

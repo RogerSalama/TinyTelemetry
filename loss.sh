@@ -82,6 +82,8 @@ for i in {1..5}; do
     RUN_SERVER_CSV="$RUN_DIR/loss_run${i}.csv"
     RUN_REORDERED_CSV="$RUN_DIR/loss_run${i}_reordered.csv"
 
+    rm -f logs/iot_device_data.csv logs/loss_run${i}_reordered.csv
+
     # Start PCAP capture
     PCAP_FILE="$RUN_DIR/loss_run${i}.pcap"
     sudo tcpdump -i lo udp port 12001 -w "$PCAP_FILE" &>/dev/null &
